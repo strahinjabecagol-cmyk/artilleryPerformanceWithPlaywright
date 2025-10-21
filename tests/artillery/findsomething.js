@@ -1,6 +1,3 @@
-const { setPriority } = require('os');
-const { findSomething } = require('../../js-tests/commands/findSomething');
-const { gotoPage } = require('../../js-tests/commands/gotoPage');
 const { selectPhillyFrom } = require('../../js-tests/commands/selectPhillyFrom');
 const { selectBerlinTo } = require('../../js-tests/commands/selectBerlinTo');
 const { clickFindFlights } = require('../../js-tests/commands/clickFindFlights');
