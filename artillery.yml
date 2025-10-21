@@ -2,7 +2,8 @@ config:
   target: 'https://blazedemo.com/index.php'
   engines:
     playwright: {}
-  processor: './tests/artillery/findsomething.js'
+  # Combined processor with multiple scenarios
+  processor: './tests/artillery/processor.js'
   # Enable intermediate reporting for per-period metrics
   ensure:
     intermediate: true
@@ -18,14 +19,27 @@ config:
       pause: 5
     #ramp up
     - name : rampUp
-      duration: 10
+      duration: 60
       arrivalRate: 1  
-      rampTo: 15
+      rampTo: 30
     #fixed arrival 
     - name: fixedArrival
       duration: 10
       arrivalRate: 15
+
 scenarios:
+  # ============================================================================
+  # SCENARIO 1: Original Test (uses helper functions)
+  # ============================================================================
   - name: testScenario
     engine: 'playwright'
-    flowFunction: 'artilleryScript' 
+    flowFunction: 'artilleryScript'
+    weight: 1  # Equal weight distribution
+  
+  # ============================================================================
+  # SCENARIO 2: Comprehensive Flight Search Performance Test
+  # ============================================================================
+  - name: flightSearchPerformance
+    engine: 'playwright'
+    flowFunction: 'flightSearchPerformance'
+    weight: 1  # Equal weight distribution 
