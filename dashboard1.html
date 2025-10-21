@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <!-- ⚠️ CACHE BUSTING: The meta tags below prevent browser from caching old data -->
@@ -62,6 +62,190 @@
     }
     .export-btn:active {
       transform: translateY(0);
+    }
+    /* ===================================================================
+     * JSON PREVIEW MODAL
+     * =================================================================== */
+    .json-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 10000;
+      animation: fadeIn 0.2s ease;
+    }
+    .json-modal.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .json-modal-content {
+      background: #1e293b;
+      border-radius: 12px;
+      border: 1px solid #334155;
+      max-width: 90%;
+      max-height: 90%;
+      width: 1200px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp {
+      from { 
+        opacity: 0;
+        transform: translateY(50px); 
+      }
+      to { 
+        opacity: 1;
+        transform: translateY(0); 
+      }
+    }
+    .json-modal-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .json-modal-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .json-modal-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .json-action-btn {
+      background: #334155;
+      color: #e2e8f0;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .json-action-btn:hover {
+      background: #475569;
+      transform: translateY(-1px);
+    }
+    .json-action-btn:active {
+      transform: translateY(0);
+    }
+    .json-action-btn.close {
+      background: #ef4444;
+    }
+    .json-action-btn.close:hover {
+      background: #dc2626;
+    }
+    .json-action-btn.copy {
+      background: #10b981;
+    }
+    .json-action-btn.copy:hover {
+      background: #059669;
+    }
+    .json-search-bar {
+      padding: 0 1.5rem 1rem 1.5rem;
+      border-bottom: 1px solid #334155;
+    }
+    .json-search-input {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      color: #e2e8f0;
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+    .json-search-input:focus {
+      border-color: #3b82f6;
+    }
+    .json-search-input::placeholder {
+      color: #64748b;
+    }
+    .json-modal-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+      flex: 1;
+      min-height: 0;
+    }
+    .json-content {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 1.5rem;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      color: #e2e8f0;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    /* Syntax Highlighting */
+    .json-key {
+      color: #7dd3fc;
+      font-weight: 600;
+    }
+    .json-string {
+      color: #86efac;
+    }
+    .json-number {
+      color: #fbbf24;
+    }
+    .json-boolean {
+      color: #c084fc;
+    }
+    .json-null {
+      color: #f87171;
+    }
+    .json-bracket {
+      color: #94a3b8;
+      font-weight: bold;
+    }
+    .highlight-match {
+      background: #fbbf24;
+      color: #000;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+    /* Scrollbar Styling */
+    .json-modal-body::-webkit-scrollbar,
+    .json-content::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    .json-modal-body::-webkit-scrollbar-track,
+    .json-content::-webkit-scrollbar-track {
+      background: #0f172a;
+      border-radius: 5px;
+    }
+    .json-modal-body::-webkit-scrollbar-thumb,
+    .json-content::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 5px;
+    }
+    .json-modal-body::-webkit-scrollbar-thumb:hover,
+    .json-content::-webkit-scrollbar-thumb:hover {
+      background: #475569;
     }
     .data-info {
       position: absolute;
@@ -438,6 +622,9 @@
         <span id="lastUpdated">Loading...</span>
       </div>
       <div class="export-buttons">
+        <button class="export-btn" onclick="openJSONPreview()" title="Preview results.json in browser">
+          👁️ Preview JSON
+        </button>
         <button class="export-btn" onclick="exportToPNG()" title="Export dashboard as PNG image">
           📸 Export PNG
         </button>
@@ -445,8 +632,8 @@
           💾 Download JSON
         </button>
       </div>
-      <h1>🚀 Artillery Performance Dashboard</h1>
-      <div class="subtitle">Real-time performance metrics and analysis</div>
+      <h1>🪖 Artillery Performance Dashboard 🪖</h1>
+      <div class="subtitle">Performance metrics and analysis</div>
     </header>
     
     <!-- Test Metadata -->
@@ -555,6 +742,42 @@
         <h2>⚙️ Scenario Step Performance <span class="tooltip" data-tooltip="Average duration for each step in your test scenario. Identifies performance bottlenecks at the step level. Slowest step highlighted in red.">?</span></h2>
         <div class="chart-desc">Average execution time per scenario step (slowest highlighted)</div>
         <canvas id="stepBreakdown"></canvas>
+      </div>
+    </div>
+  </div>
+  
+  <!-- JSON Preview Modal -->
+  <div class="json-modal" id="jsonModal">
+    <div class="json-modal-content">
+      <div class="json-modal-header">
+        <div class="json-modal-title">
+          <span>📄</span>
+          <span>results.json</span>
+          <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 400;" id="jsonFileSize">Loading...</span>
+        </div>
+        <div class="json-modal-actions">
+          <button class="json-action-btn copy" onclick="copyJSON()" title="Copy to clipboard">
+            📋 Copy
+          </button>
+          <button class="json-action-btn" onclick="downloadJSON()" title="Download file">
+            💾 Download
+          </button>
+          <button class="json-action-btn close" onclick="closeJSONPreview()" title="Close preview">
+            ✕ Close
+          </button>
+        </div>
+      </div>
+      <div class="json-search-bar">
+        <input 
+          type="text" 
+          class="json-search-input" 
+          id="jsonSearch" 
+          placeholder="🔍 Search in JSON... (e.g., 'vusers', 'FCP', 'mean')"
+          onkeyup="searchJSON()"
+        />
+      </div>
+      <div class="json-modal-body">
+        <div class="json-content" id="jsonContent">Loading JSON data...</div>
       </div>
     </div>
   </div>
@@ -1199,15 +1422,16 @@
 
       // Success vs Failure Rate
       // ⚠️ NOTE: This is a pie chart with bottom legend - needs compact-tall container (450px)
+      const completedCount = counters['vusers.completed'] || 0;
+      const failedCount = counters['vusers.failed'] || 0;
+      const totalVUsers = completedCount + failedCount;
+      
       new Chart(document.getElementById('successChart'), {
         type: 'pie',
         data: {
           labels: ['Completed Successfully', 'Failed'],
           datasets: [{
-            data: [
-              counters['vusers.completed'] || 0,
-              counters['vusers.failed'] || 0
-            ],
+            data: [completedCount, failedCount],
             backgroundColor: [
               'rgba(34, 197, 94, 0.8)',
               'rgba(239, 68, 68, 0.8)'
@@ -1236,6 +1460,15 @@
                 padding: 15,
                 boxWidth: 15,
                 boxHeight: 15
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const value = context.parsed;
+                  const percentage = totalVUsers > 0 ? ((value / totalVUsers) * 100).toFixed(1) : 0;
+                  return `${context.label}: ${value} (${percentage}%)`;
+                }
               }
             }
           }
@@ -1489,6 +1722,205 @@
     // ===================================================================
     // EXPORT FUNCTIONS
     // ===================================================================
+    
+    // Store the original JSON data globally for preview
+    let globalJSONData = null;
+    
+    // Open JSON Preview Modal
+    async function openJSONPreview() {
+      const modal = document.getElementById('jsonModal');
+      const content = document.getElementById('jsonContent');
+      const fileSize = document.getElementById('jsonFileSize');
+      const searchInput = document.getElementById('jsonSearch');
+      
+      modal.classList.add('active');
+      content.innerHTML = '<div style="text-align:center;color:#94a3b8;">⏳ Loading JSON data...</div>';
+      searchInput.value = '';
+      
+      try {
+        const timestamp = new Date().getTime();
+        const res = await fetch(`results.json?v=${timestamp}`);
+        const jsonText = await res.text();
+        const jsonData = JSON.parse(jsonText);
+        
+        // Store globally for copy/search
+        globalJSONData = jsonData;
+        
+        // Calculate file size
+        const sizeKB = (new Blob([jsonText]).size / 1024).toFixed(2);
+        fileSize.textContent = `${sizeKB} KB`;
+        
+        // Render with syntax highlighting
+        renderJSON(jsonData);
+        
+      } catch (error) {
+        console.error('Error loading JSON:', error);
+        content.innerHTML = '<div style="color:#ef4444;">❌ Failed to load JSON data</div>';
+      }
+    }
+    
+    // Close JSON Preview Modal
+    function closeJSONPreview() {
+      const modal = document.getElementById('jsonModal');
+      modal.classList.remove('active');
+    }
+    
+    // Close modal on ESC key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeJSONPreview();
+      }
+    });
+    
+    // Render JSON with Syntax Highlighting
+    function renderJSON(data, searchTerm = '') {
+      const content = document.getElementById('jsonContent');
+      let jsonString = JSON.stringify(data, null, 2);
+      
+      // Apply syntax highlighting
+      jsonString = syntaxHighlight(jsonString);
+      
+      // Apply search highlighting if search term exists
+      if (searchTerm) {
+        const regex = new RegExp(`(${escapeRegex(searchTerm)})`, 'gi');
+        jsonString = jsonString.replace(regex, '<span class="highlight-match">$1</span>');
+      }
+      
+      content.innerHTML = jsonString;
+    }
+    
+    // Syntax Highlight Function
+    function syntaxHighlight(json) {
+      json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        let cls = 'json-number';
+        if (/^"/.test(match)) {
+          if (/:$/.test(match)) {
+            cls = 'json-key';
+          } else {
+            cls = 'json-string';
+          }
+        } else if (/true|false/.test(match)) {
+          cls = 'json-boolean';
+        } else if (/null/.test(match)) {
+          cls = 'json-null';
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+      });
+    }
+    
+    // Search JSON
+    function searchJSON() {
+      const searchInput = document.getElementById('jsonSearch');
+      const searchTerm = searchInput.value.trim();
+      
+      if (!globalJSONData) return;
+      
+      if (searchTerm.length === 0) {
+        renderJSON(globalJSONData);
+        return;
+      }
+      
+      // Filter JSON based on search term
+      const filtered = filterJSON(globalJSONData, searchTerm);
+      renderJSON(filtered, searchTerm);
+    }
+    
+    // Filter JSON recursively
+    function filterJSON(obj, searchTerm) {
+      const term = searchTerm.toLowerCase();
+      
+      if (typeof obj !== 'object' || obj === null) {
+        return obj;
+      }
+      
+      if (Array.isArray(obj)) {
+        const filtered = obj.map(item => filterJSON(item, searchTerm)).filter(item => item !== null);
+        return filtered.length > 0 ? filtered : null;
+      }
+      
+      const result = {};
+      let hasMatch = false;
+      
+      for (const [key, value] of Object.entries(obj)) {
+        // Check if key matches
+        if (key.toLowerCase().includes(term)) {
+          result[key] = value;
+          hasMatch = true;
+        } 
+        // Check if value matches (for primitives)
+        else if (typeof value === 'string' && value.toLowerCase().includes(term)) {
+          result[key] = value;
+          hasMatch = true;
+        }
+        else if (typeof value === 'number' && value.toString().includes(term)) {
+          result[key] = value;
+          hasMatch = true;
+        }
+        // Recursively filter objects/arrays
+        else if (typeof value === 'object') {
+          const filteredValue = filterJSON(value, searchTerm);
+          if (filteredValue !== null && Object.keys(filteredValue).length > 0) {
+            result[key] = filteredValue;
+            hasMatch = true;
+          }
+        }
+      }
+      
+      return hasMatch ? result : null;
+    }
+    
+    // Escape regex special characters
+    function escapeRegex(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+    
+    // Copy JSON to Clipboard
+    function copyJSON() {
+      if (!globalJSONData) {
+        alert('No JSON data loaded');
+        return;
+      }
+      
+      const jsonText = JSON.stringify(globalJSONData, null, 2);
+      
+      // Modern clipboard API
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(jsonText).then(() => {
+          // Show success feedback
+          const btn = event.target.closest('.json-action-btn');
+          const originalText = btn.innerHTML;
+          btn.innerHTML = '✓ Copied!';
+          btn.style.background = '#059669';
+          setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.style.background = '';
+          }, 2000);
+        }).catch(err => {
+          console.error('Failed to copy:', err);
+          fallbackCopyJSON(jsonText);
+        });
+      } else {
+        fallbackCopyJSON(jsonText);
+      }
+    }
+    
+    // Fallback copy method for older browsers
+    function fallbackCopyJSON(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        alert('JSON copied to clipboard!');
+      } catch (err) {
+        alert('Failed to copy JSON. Please try manually.');
+      }
+      document.body.removeChild(textarea);
+    }
     
     // Download results.json file
     function downloadJSON() {
