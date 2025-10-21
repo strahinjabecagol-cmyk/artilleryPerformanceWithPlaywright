@@ -144,7 +144,6 @@ async function artilleryScript(page, vuContext, events, test) {
 ```
 
 ---
-## just a check
 ## 📁 Resulting Data Structure
 
 ### With Custom Metrics:
