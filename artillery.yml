@@ -1,0 +1,31 @@
+config:
+  target: 'https://blazedemo.com/index.php'
+  engines:
+    playwright: {}
+  processor: './tests/artillery/findsomething.js'
+  # Enable intermediate reporting for per-period metrics
+  ensure:
+    intermediate: true
+  # Report metrics every 10 seconds
+  statsInterval: 10
+  phases:
+    #injects one user every second for 10 seconds
+    - name: constantArrival
+      duration: 10
+      arrivalRate: 1
+    #pause
+    - name: pause
+      pause: 5
+    #ramp up
+    - name : rampUp
+      duration: 10
+      arrivalRate: 1  
+      rampTo: 15
+    #fixed arrival 
+    - name: fixedArrival
+      duration: 10
+      arrivalRate: 15
+scenarios:
+  - name: testScenario
+    engine: 'playwright'
+    flowFunction: 'artilleryScript' 
