@@ -791,8 +791,21 @@
         const timestamp = new Date().getTime();
         const res = await fetch(`results.json?v=${timestamp}`);
         console.log('Fetch response:', res.status, res.statusText);
+        
+        // Check if file exists
+        if (!res.ok) {
+          showNoDataMessage();
+          return;
+        }
+        
         const data = await res.json();
         console.log('Data loaded successfully:', data);
+        
+        // Check if data is valid
+        if (!data || !data.aggregate || !data.intermediate || data.intermediate.length === 0) {
+          showNoDataMessage();
+          return;
+        }
 
         // Update last updated time
         const lastUpdated = new Date();
@@ -1731,8 +1744,74 @@
       
       } catch (error) {
         console.error('Error loading dashboard data:', error);
-        alert('Error loading dashboard data. Check console for details.');
+        showNoDataMessage();
       }
+    }
+    
+    // ===================================================================
+    // SHOW "NO DATA AVAILABLE" MESSAGE
+    // ===================================================================
+    function showNoDataMessage() {
+      console.log('No data available - showing message');
+      
+      // Hide all chart sections
+      const testMetadata = document.getElementById('testMetadata');
+      const summary = document.getElementById('summary');
+      const vitals = document.getElementById('vitals');
+      
+      if (testMetadata) testMetadata.style.display = 'none';
+      if (summary) summary.style.display = 'none';
+      if (vitals) vitals.style.display = 'none';
+      
+      document.querySelectorAll('.section-title').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.charts-container').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.vitals-grid').forEach(el => el.style.display = 'none');
+      
+      // Disable export buttons
+      document.querySelectorAll('.export-btn').forEach(btn => {
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'not-allowed';
+        btn.title = 'No data available to export';
+      });
+      
+      // Update last updated status
+      document.getElementById('lastUpdated').innerHTML = '<span style="color: #ef4444;">No data found</span>';
+      document.querySelector('.data-info .status').style.background = '#ef4444';
+      
+      // Create and show "No data available" message
+      const container = document.querySelector('.container');
+      const noDataDiv = document.createElement('div');
+      noDataDiv.id = 'noDataMessage';
+      noDataDiv.style.cssText = `
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border: 2px dashed #475569;
+        border-radius: 12px;
+        padding: 4rem 2rem;
+        text-align: center;
+        margin: 2rem auto;
+        max-width: 600px;
+      `;
+      noDataDiv.innerHTML = `
+        <div style="font-size: 4rem; margin-bottom: 1rem;">📊</div>
+        <h2 style="color: #ffffff; font-size: 1.5rem; margin-bottom: 1rem;">No Data Available</h2>
+        <p style="color: #94a3b8; font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
+          No <code style="background: #0f172a; padding: 0.25rem 0.5rem; border-radius: 4px; color: #60a5fa;">results.json</code> file found.
+        </p>
+        <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6;">
+          Please run an Artillery test to generate performance data:
+        </p>
+        <div style="background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 1rem; margin: 1.5rem auto; max-width: 400px; text-align: left;">
+          <code style="color: #22c55e; font-size: 0.9rem;">artillery run your-test.yml -o results.json</code>
+        </div>
+        <p style="color: #64748b; font-size: 0.8rem; margin-top: 1.5rem;">
+          After running the test, refresh this page to view the dashboard.
+        </p>
+      `;
+      
+      // Insert after header
+      const header = document.querySelector('header');
+      header.after(noDataDiv);
     }
     
     // ===================================================================
