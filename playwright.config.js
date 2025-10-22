@@ -29,6 +29,10 @@ exports.default = (0, test_1.defineConfig)({
         // baseURL: 'http://localhost:3000',
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: 'on-first-retry',
+        /* Global timeout for actions like waitForSelector, click, fill, etc. */
+        actionTimeout: 15000, // 15 seconds
+        /* Global timeout for page navigations (page.goto, waitForNavigation, etc.) */
+        navigationTimeout: 60000, // 60 seconds for load testing scenarios
     },
     /* Configure projects for major browsers */
     projects: [
