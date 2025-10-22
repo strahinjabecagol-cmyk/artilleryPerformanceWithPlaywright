@@ -25,7 +25,7 @@ config:
     - name : rampUp
       duration: 10
       arrivalRate: 1  
-      rampTo: 30
+      rampTo: 50
     # #fixed arrival 
     # - name: fixedArrival
     #   duration: 10
