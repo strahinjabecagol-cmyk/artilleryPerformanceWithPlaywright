@@ -9,7 +9,9 @@ node_modules/
 /.playwright-mcp/
 
 # Artillery test results (generated artifacts)
-results.json
+results.json*
+
+
 
 # TypeScript compiled output
 /js-tests/

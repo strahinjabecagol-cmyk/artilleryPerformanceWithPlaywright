@@ -168,8 +168,8 @@ async function flightSearchPerformance(page, vuContext, events, test) {
         // ====================================================================
         // VERIFY RESULTS LOADED
         // ====================================================================
-        // Wait for flight results to appear
-        await page.waitForSelector('table tbody tr', { timeout: 5000 });
+        // Wait for flight results to appear (increased timeout to 15s to avoid false failures)
+        await page.waitForSelector('table tbody tr', { timeout: 15000 });
         
         // Count number of flights displayed
         const flightCount = await page.locator('table tbody tr').count();

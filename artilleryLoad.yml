@@ -5,7 +5,8 @@ config:
       launchOptions:
         headless: true
       contextOptions:
-        timeout: 60000
+        # Set default timeouts for all Playwright operations
+        timeout: 60000  # 60 seconds for navigation and actions
   # Combined processor with multiple scenarios
   processor: './tests/artillery/processor.js'
   # Enable intermediate reporting for per-period metrics
@@ -14,22 +15,32 @@ config:
   # Report metrics every 10 seconds
   statsInterval: 10
   phases:
-    #injects one user every second for 10 seconds
-    # - name: constantArrival
-    #   duration: 10
-    #   arrivalRate: 1
-    # #pause
-    # - name: pause
-    #   pause: 5
-    #ramp up
-    - name : rampUp
-      duration: 10
-      arrivalRate: 1  
-      rampTo: 30
-    # #fixed arrival 
-    # - name: fixedArrival
-    #   duration: 10
-    #   arrivalRate: 15
+  # 1️ Warm-up
+  - name: warmup
+    duration: 30
+    arrivalRate: 2     # low constant rate to warm up caches
+
+  # 2️ Ramp-up
+  - name: ramp_up
+    duration: 60
+    arrivalRate: 2
+    rampTo: 20         # gradually increase load
+
+  # 3️ Sustained load
+  - name: steady_load
+    duration: 180      # 3 minutes of steady traffic
+    arrivalRate: 20    # constant 20 new users per second
+
+  # 4️ Ramp-down (cool down)
+  - name: ramp_down
+    duration: 30
+    arrivalRate: 20
+    rampTo: 2
+
+  # Recovery: sudden drop back to low traffic
+  - name: recovery
+    duration: 30
+    arrivalRate: 2
 
 scenarios:
   # ============================================================================
