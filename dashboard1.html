@@ -852,7 +852,14 @@
           }
         }
         
-        document.getElementById('testName').textContent = 'Artillery Load Test';
+        // Dynamic test name: prefer config.name, else extract scenario name, else fallback
+        const configName = data.config?.name || null;
+        const counterKeys = Object.keys(counters || {});
+        const scenarioKey = counterKeys.find(k => k.startsWith('vusers.created_by_name.'));
+        const scenarioName = scenarioKey ? scenarioKey.split('.').pop().replace(/[_-]/g,' ').replace(/([a-z])([A-Z])/g,'$1 $2').replace(/\b\w/g,c=>c.toUpperCase()) : null;
+        const finalTestName = configName || scenarioName || 'Artillery Load Test';
+        
+        document.getElementById('testName').textContent = finalTestName;
         document.getElementById('targetUrl').textContent = targetUrl;
         document.getElementById('testDuration').textContent = `${durationSec}s`;
         document.getElementById('startTime').textContent = firstMetricAt 

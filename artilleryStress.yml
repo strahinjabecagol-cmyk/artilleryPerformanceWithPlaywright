@@ -1,4 +1,5 @@
 config:
+  name: 'Stress Test - Flight Search'
   target: 'https://blazedemo.com/index.php'
   engines:
     playwright:

@@ -1,4 +1,5 @@
 config:
+  name: 'Webstore Performance Test'
   target: 'https://www.demoblaze.com/index.html'
   engines:
     playwright:

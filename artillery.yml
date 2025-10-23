@@ -1,4 +1,5 @@
 config:
+  name: 'Flight Search Performance Test'
   target: 'https://blazedemo.com/index.php'
   engines:
     playwright:

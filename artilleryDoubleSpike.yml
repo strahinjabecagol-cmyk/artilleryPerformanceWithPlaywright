@@ -1,4 +1,5 @@
 config:
+  name: 'Double Spike Test - Flight Search'
   target: 'https://blazedemo.com/index.php'
   engines:
     playwright:

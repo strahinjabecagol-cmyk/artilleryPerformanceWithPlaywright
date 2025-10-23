@@ -3,6 +3,10 @@ REM ============================================
 REM Webstore Artillery Test Runner + Report Viewer
 REM ============================================
 
+REM Step 0: Compile TypeScript files
+echo Compiling TypeScript files...
+call tsc
+
 REM Step 1: Run the Artillery webstore test and save results
 echo Running Artillery webstore load test...
 call "%AppData%\npm\artillery.cmd" run artillery_copy.yml --output results.json
