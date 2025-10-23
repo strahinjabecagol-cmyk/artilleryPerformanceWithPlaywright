@@ -285,9 +285,28 @@
     }
     .metrics { 
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: 1rem;
       margin-bottom: 2rem;
+    }
+    .metric-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .card.compact {
+      padding: 0.75rem;
+      border-left: 3px solid #3b82f6;
+    }
+    .card.compact:hover {
+      border-left-color: #8b5cf6;
+    }
+    .card.compact h3 {
+      font-size: 0.65rem;
+      margin-bottom: 0.5rem;
+    }
+    .card.compact p {
+      font-size: 1.25rem;
     }
     /* ===================================================================
      * TEST METADATA SECTION
@@ -325,30 +344,17 @@
       padding: 1.25rem;
       border-radius: 8px;
       border: 1px solid #334155;
+      border-left: 3px solid #3b82f6;
       text-align: center;
       transition: all 0.3s ease;
       position: relative;
       overflow: visible; /* ⚠️ MUST be visible for tooltips to show! */
       z-index: 1;
     }
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
     .card:hover {
-      transform: translateY(-2px);
       border-color: #475569;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-    }
-    .card:hover::before {
-      opacity: 1;
+      border-left-color: #8b5cf6;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
     .card h3 {
       font-size: 0.75rem;
@@ -368,7 +374,6 @@
       line-height: 1;
     }
     .apdex-card {
-      grid-column: span 2;
       background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
       padding: 1.5rem;
       border-radius: 8px;
@@ -377,33 +382,37 @@
       transition: all 0.3s ease;
       overflow: visible;
       z-index: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
     }
     .apdex-card.excellent { border-left-color: #22c55e; background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, #0f172a 100%); }
     .apdex-card.good { border-left-color: #10b981; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, #0f172a 100%); }
     .apdex-card.fair { border-left-color: #f59e0b; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, #0f172a 100%); }
     .apdex-card.poor { border-left-color: #ef4444; background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, #0f172a 100%); }
     .apdex-score {
-      font-size: 3rem;
+      font-size: 2rem;
       font-weight: 700;
       color: #ffffff;
-      margin: 1rem 0;
+      margin: 0.5rem 0;
     }
     .apdex-label {
-      font-size: 0.9rem;
+      font-size: 0.75rem;
       color: #94a3b8;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
       font-weight: 600;
     }
     .apdex-rating {
       display: inline-block;
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
-      font-size: 0.9rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 16px;
+      font-size: 0.75rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-top: 0.5rem;
+      margin-top: 0.35rem;
     }
     .apdex-card.excellent .apdex-rating { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
     .apdex-card.good .apdex-rating { background: rgba(16, 185, 129, 0.2); color: #10b981; }
@@ -497,8 +506,7 @@
       z-index: 1;
     }
     .vital-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
     .vital-card.good { border-left-color: #22c55e; }
     .vital-card.needs-improvement { border-left-color: #f59e0b; }
@@ -581,13 +589,13 @@
     }
     /* ⚠️ IMPORTANT: Chart heights must accommodate legends!
      * compact: 280px - for charts WITHOUT bottom legends (line, bar)
-     * compact-tall: 450px - for charts WITH bottom legends (doughnut, pie)
-     * ⛔ DO NOT REDUCE compact-tall below 450px or legends WILL BE CUT OFF! */
+     * compact-tall: 280px - UPDATED to match compact height for consistency
+     * Note: All charts now have uniform height */
     .chart-wrapper.compact {
       height: 280px;
     }
     .chart-wrapper.compact-tall {
-      height: 450px; /* ⛔ DON'T TOUCH - Minimum height for legend visibility! */
+      height: 280px; /* Updated to match compact height for visual consistency */
     }
     canvas { 
       max-width: 100%;
@@ -705,9 +713,15 @@
         <div class="chart-desc">Total HTTP requests per test period</div>
         <canvas id="httpRequestsChart"></canvas>
       </div>
+      <div class="chart-wrapper compact">
+        <h2>📊 Combined Performance Metrics <span class="tooltip" data-tooltip="Combined view of RPS, Response Time, and FCP over time. Shows the relationship between load, latency, and user experience metrics.">?</span></h2>
+        <div class="chart-desc">RPS, Response Time, and FCP trends in one view</div>
+        <canvas id="combinedMetricsChart"></canvas>
+      </div>
     </div>
     
-    <!-- Additional Performance Metrics -->
+    <!-- Advanced Analysis -->
+    <div class="section-title">📊 Advanced Analysis</div>
     <div class="charts-container">
       <div class="chart-wrapper compact-tall">
         <h2>⏱️ Response Time Percentiles <span class="tooltip" data-tooltip="Distribution of FCP times. p95 means 95% of users experienced this time or better. Higher percentiles show worst-case scenarios.">?</span></h2>
@@ -715,38 +729,32 @@
         <canvas id="percentilesChart"></canvas>
       </div>
       <div class="chart-wrapper compact-tall">
-        <h2>🌐 HTTP Status Codes <span class="tooltip" data-tooltip="Breakdown of HTTP response codes. 200=Success, 204=No Content, 500=Server Error. High error rates indicate server issues.">?</span></h2>
-        <div class="chart-desc">Distribution of server response codes during the test</div>
-        <canvas id="statusCodesChart"></canvas>
-      </div>
-    </div>
-    
-    <!-- Error & Success Rate -->
-    <div class="charts-container">
-      <div class="chart-wrapper compact-tall full-width">
         <h2>✅ Success vs Failure Rate <span class="tooltip" data-tooltip="Overall test reliability. Shows percentage of users who completed successfully vs those who encountered errors.">?</span></h2>
         <div class="chart-desc">Overall test completion rate - target >95% success for production readiness</div>
         <canvas id="successChart"></canvas>
       </div>
     </div>
     
-    <!-- Additional Analysis -->
-    <div class="section-title">📊 Advanced Analysis</div>
     <div class="charts-container">
+      <div class="chart-wrapper compact-tall">
+        <h2>🌐 HTTP Status Codes <span class="tooltip" data-tooltip="Breakdown of HTTP response codes. 200=Success, 204=No Content, 500=Server Error. High error rates indicate server issues.">?</span></h2>
+        <div class="chart-desc">Distribution of server response codes during the test</div>
+        <canvas id="statusCodesChart"></canvas>
+      </div>
       <div class="chart-wrapper compact-tall">
         <h2>📈 Latency Distribution <span class="tooltip" data-tooltip="Response time distribution grouped in 100ms buckets. Shows how many requests fall into each latency range. Green=fast, Orange=moderate, Red=slow.">?</span></h2>
         <div class="chart-desc">Response time histogram grouped by 100ms intervals</div>
         <canvas id="latencyHistogram"></canvas>
       </div>
+    </div>
+    
+    <div class="charts-container">
       <div class="chart-wrapper compact-tall">
         <h2>🚨 HTTP Error Breakdown <span class="tooltip" data-tooltip="Detailed breakdown of HTTP errors. 4xx errors are client-side issues (bad requests, not found, etc.). 5xx errors are server-side failures.">?</span></h2>
         <div class="chart-desc">Client errors (4xx) vs Server errors (5xx)</div>
         <canvas id="errorBreakdown"></canvas>
       </div>
-    </div>
-    
-    <div class="charts-container">
-      <div class="chart-wrapper compact-tall full-width">
+      <div class="chart-wrapper compact-tall">
         <h2>⚙️ Scenario Step Performance <span class="tooltip" data-tooltip="Average duration for each step in your test scenario. Identifies performance bottlenecks at the step level. Slowest step highlighted in red.">?</span></h2>
         <div class="chart-desc">Average execution time per scenario step (slowest highlighted)</div>
         <canvas id="stepBreakdown"></canvas>
@@ -875,29 +883,35 @@
       
       const metricsDiv = document.getElementById('summary');
       metricsDiv.innerHTML = `
-        <div class="card">
-          <h3>Total VUsers <span class="tooltip" data-tooltip="Virtual Users: Simulated users that ran through your test scenarios. Each VUser represents one complete user journey through your application.">?</span></h3>
-          <p>${counters['vusers.created'] || 0}</p>
+        <div class="metric-stack">
+          <div class="card compact">
+            <h3>Total VUsers <span class="tooltip" data-tooltip="Virtual Users: Simulated users that ran through your test scenarios. Each VUser represents one complete user journey through your application.">?</span></h3>
+            <p>${counters['vusers.created'] || 0}</p>
+          </div>
+          <div class="card compact">
+            <h3>Completed <span class="tooltip" data-tooltip="Number of VUsers that successfully completed all steps in the test scenario without errors.">?</span></h3>
+            <p>${counters['vusers.completed'] || 0}</p>
+          </div>
         </div>
-        <div class="card">
-          <h3>Completed <span class="tooltip" data-tooltip="Number of VUsers that successfully completed all steps in the test scenario without errors.">?</span></h3>
-          <p>${counters['vusers.completed'] || 0}</p>
+        <div class="metric-stack">
+          <div class="card compact">
+            <h3>Failed <span class="tooltip" data-tooltip="Number of VUsers that encountered errors during the test. High failure rates may indicate performance or stability issues.">?</span></h3>
+            <p>${counters['vusers.failed'] || 0}</p>
+          </div>
+          <div class="card compact">
+            <h3>HTTP Requests <span class="tooltip" data-tooltip="Total number of HTTP requests made during the test, including page loads, API calls, and resource fetches.">?</span></h3>
+            <p>${counters['browser.http_requests'] || 0}</p>
+          </div>
         </div>
-        <div class="card">
-          <h3>Failed <span class="tooltip" data-tooltip="Number of VUsers that encountered errors during the test. High failure rates may indicate performance or stability issues.">?</span></h3>
-          <p>${counters['vusers.failed'] || 0}</p>
-        </div>
-        <div class="card">
-          <h3>HTTP Requests <span class="tooltip" data-tooltip="Total number of HTTP requests made during the test, including page loads, API calls, and resource fetches.">?</span></h3>
-          <p>${counters['browser.http_requests'] || 0}</p>
-        </div>
-        <div class="card">
-          <h3>Session Length (mean ms) <span class="tooltip" data-tooltip="Average time (in milliseconds) it took for a VUser to complete the entire test scenario from start to finish.">?</span></h3>
-          <p>${sessionLength.mean?.toFixed(2) || 'N/A'}</p>
-        </div>
-        <div class="card">
-          <h3>Success Rate <span class="tooltip" data-tooltip="Percentage of VUsers that completed successfully. Higher is better. Target: >95% for production systems.">?</span></h3>
-          <p>${((counters['vusers.completed'] / counters['vusers.created']) * 100).toFixed(1)}%</p>
+        <div class="metric-stack">
+          <div class="card compact">
+            <h3>Session Length (mean ms) <span class="tooltip" data-tooltip="Average time (in milliseconds) it took for a VUser to complete the entire test scenario from start to finish.">?</span></h3>
+            <p>${sessionLength.mean?.toFixed(2) || 'N/A'}</p>
+          </div>
+          <div class="card compact">
+            <h3>Success Rate <span class="tooltip" data-tooltip="Percentage of VUsers that completed successfully. Higher is better. Target: >95% for production systems.">?</span></h3>
+            <p>${((counters['vusers.completed'] / counters['vusers.created']) * 100).toFixed(1)}%</p>
+          </div>
         </div>
       `;
 
@@ -1210,10 +1224,195 @@
         }
       });
       
-      // FCP over time
+      // ===================================================================
+      // COMBINED PERFORMANCE METRICS CHART
+      // ===================================================================
       // Check if intermediate data has FCP metrics
       const hasFCPInIntermediate = data.intermediate.some(i => i.summaries?.[fcpKey]?.mean);
       
+      // Calculate RPS from HTTP requests
+      const combinedRpsData = data.intermediate.map((item, idx, arr) => {
+        const requests = item.counters?.['browser.http_requests'] || 0;
+        const currentPeriod = parseInt(item.period) || 0;
+        const prevPeriod = idx > 0 ? parseInt(arr[idx - 1].period) || 0 : currentPeriod - 10000;
+        const durationMs = currentPeriod - prevPeriod;
+        const durationSeconds = durationMs / 1000 || 10;
+        return requests / durationSeconds;
+      });
+      
+      // Get Response Time data (try multiple keys)
+      const responseTimeKey = Object.keys(data.intermediate[0]?.summaries || {}).find(k => 
+        k.includes('http.response_time') || k.includes('response_time')
+      );
+      const responseTimeData = responseTimeKey 
+        ? data.intermediate.map(i => i.summaries?.[responseTimeKey]?.mean || 0)
+        : data.intermediate.map(() => 0);
+      
+      // Get FCP data
+      const combinedFcpData = hasFCPInIntermediate 
+        ? data.intermediate.map(i => i.summaries?.[fcpKey]?.mean || 0)
+        : data.intermediate.map(() => fcp.mean || 0);
+      
+      // Create combined chart with dual Y-axes
+      new Chart(document.getElementById('combinedMetricsChart'), {
+        type: 'line',
+        data: {
+          labels: periods,
+          datasets: [
+            {
+              label: 'RPS (Requests/Second)',
+              data: combinedRpsData,
+              borderColor: '#8b5cf6',
+              backgroundColor: 'rgba(139, 92, 246, 0.1)',
+              fill: false,
+              tension: 0.4,
+              borderWidth: 2,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              yAxisID: 'y'
+            },
+            {
+              label: 'Response Time (ms)',
+              data: responseTimeData,
+              borderColor: '#f59e0b',
+              backgroundColor: 'rgba(245, 158, 11, 0.1)',
+              fill: false,
+              tension: 0.4,
+              borderWidth: 2,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              yAxisID: 'y1'
+            },
+            {
+              label: 'FCP (ms)',
+              data: combinedFcpData,
+              borderColor: '#06b6d4',
+              backgroundColor: 'rgba(6, 182, 212, 0.1)',
+              fill: false,
+              tension: 0.4,
+              borderWidth: 2,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          layout: {
+            padding: {
+              top: 10,
+              bottom: 10,
+              left: 5,
+              right: 5
+            }
+          },
+          plugins: {
+            title: { display: false },
+            legend: { 
+              display: true,
+              labels: { color: '#94a3b8', font: { size: 11 }, padding: 10 }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  let label = context.dataset.label || '';
+                  if (label) {
+                    label += ': ';
+                  }
+                  if (context.parsed.y !== null) {
+                    label += context.parsed.y.toFixed(2);
+                  }
+                  return label;
+                }
+              }
+            },
+            zoom: {
+              zoom: {
+                wheel: {
+                  enabled: true,
+                },
+                pinch: {
+                  enabled: true
+                },
+                mode: 'x',
+              },
+              pan: {
+                enabled: true,
+                mode: 'x',
+              },
+              limits: {
+                x: {min: 'original', max: 'original'},
+                y: {min: 'original', max: 'original'}
+              }
+            }
+          },
+          scales: {
+            y: {
+              type: 'linear',
+              display: true,
+              position: 'left',
+              beginAtZero: true,
+              grid: { color: '#334155' },
+              ticks: { 
+                color: '#8b5cf6',
+                font: { size: 10 },
+                padding: 5,
+                callback: function(value) {
+                  return value.toFixed(0) + ' rps';
+                }
+              },
+              title: {
+                display: true,
+                text: 'RPS',
+                color: '#8b5cf6',
+                font: { size: 11 }
+              }
+            },
+            y1: {
+              type: 'linear',
+              display: true,
+              position: 'right',
+              beginAtZero: true,
+              grid: {
+                drawOnChartArea: false,
+              },
+              ticks: { 
+                color: '#f59e0b',
+                font: { size: 10 },
+                padding: 5,
+                callback: function(value) {
+                  return value.toFixed(0) + ' ms';
+                }
+              },
+              title: {
+                display: true,
+                text: 'Latency (ms)',
+                color: '#f59e0b',
+                font: { size: 11 }
+              }
+            },
+            x: {
+              grid: { color: '#334155' },
+              ticks: { 
+                color: '#94a3b8', 
+                font: { size: 10 },
+                padding: 5,
+                maxRotation: 0,
+                autoSkip: true
+              }
+            }
+          }
+        }
+      });
+      
+      // FCP over time
+      // FCP data already checked above
       const fcpData = hasFCPInIntermediate 
         ? data.intermediate.map(i => i.summaries?.[fcpKey]?.mean || 0)
         : data.intermediate.map(() => fcp.mean || 0); // Fallback to aggregate mean for all periods
