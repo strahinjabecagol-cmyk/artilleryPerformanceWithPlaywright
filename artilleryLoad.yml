@@ -1,69 +1,75 @@
 config:
-  name: 'Load Test - Flight Search'
-  target: 'https://blazedemo.com/index.php'
+  name: "Load Test - Flight Search"
+  target: "https://blazedemo.com/index.php"
   engines:
     playwright:
       launchOptions:
         headless: true
       contextOptions:
         # Set default timeouts for all Playwright operations
-        timeout: 60000  # 60 seconds for navigation and actions
+        timeout: 60000 # 60 seconds for navigation and actions
   # Combined processor with multiple scenarios
-  processor: './tests/artillery/processor.js'
+  processor: "./tests/artillery/processor.js"
   # Enable intermediate reporting for per-period metrics
   ensure:
     intermediate: true
   # Report metrics every 10 seconds
   statsInterval: 10
   phases:
-  # 1️ Warm-up
-  - name: warmup
-    duration: 30
-    arrivalRate: 2     # low constant rate to warm up caches
+    # 1️ Warm-up
+    - name: warmup
+      duration: 30
+      arrivalRate: 2 # low constant rate to warm up caches
 
-  # 2️ Ramp-up
-  - name: ramp_up
-    duration: 60
-    arrivalRate: 2
-    rampTo: 20         # gradually increase load
+    # 2️ Ramp-up
+    - name: ramp_up
+      duration: 60
+      arrivalRate: 2
+      rampTo: 20 # gradually increase load
 
-  # 3️ Sustained load
-  - name: steady_load
-    duration: 180      # 3 minutes of steady traffic
-    arrivalRate: 20    # constant 20 new users per second
+    # 3️ Sustained load
+    - name: steady_load
+      duration: 180 # 3 minutes of steady traffic
+      arrivalRate: 20 # constant 20 new users per second
 
-  # 4️ Ramp-down (cool down)
-  - name: ramp_down
-    duration: 30
-    arrivalRate: 20
-    rampTo: 2
+    # 4️ Ramp-down (cool down)
+    - name: ramp_down
+      duration: 30
+      arrivalRate: 20
+      rampTo: 2
 
-  # Recovery: sudden drop back to low traffic
-  - name: recovery
-    duration: 30
-    arrivalRate: 2
+    # Recovery: sudden drop back to low traffic
+    - name: recovery
+      duration: 30
+      arrivalRate: 2
 
 scenarios:
   # ============================================================================
   # SCENARIO 1: Original Test (uses helper functions)
   # ============================================================================
   - name: testScenario
-    engine: 'playwright'
-    flowFunction: 'artilleryScript'
-    weight: 1  # Equal weight distribution
-  
+    engine: "playwright"
+    flowFunction: "artilleryScript"
+    custom:
+      testName: "Masive Load Test"
+    weight: 1 # Equal weight distribution
+
   # ============================================================================
   # SCENARIO 2: Comprehensive Flight Search Performance Test
   # ============================================================================
   - name: flightSearchPerformance
-    engine: 'playwright'
-    flowFunction: 'flightSearchPerformance'
-    weight: 1  # Equal weight distribution
-  
+    engine: "playwright"
+    flowFunction: "flightSearchPerformance"
+    custom:
+      testName: "Masive Load Test"
+    weight: 1 # Equal weight distribution
+
   # ============================================================================
   # SCENARIO 3: Vacation Page Load Performance Test
   # ============================================================================
   - name: vacationPagePerformance
-    engine: 'playwright'
-    flowFunction: 'vacationPagePerformance'
-    weight: 1  # Equal weight distribution
+    engine: "playwright"
+    flowFunction: "vacationPagePerformance"
+    custom:
+      testName: "Masive Load Test"
+    weight: 1 # Equal weight distribution

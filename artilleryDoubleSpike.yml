@@ -71,4 +71,6 @@ scenarios:
   - name: vacationPagePerformance
     engine: 'playwright'
     flowFunction: 'vacationPagePerformance'
+    custom:
+      testName: "Vacation Page Performance double spike"
     weight: 1  # Equal weight distribution

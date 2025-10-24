@@ -44,6 +44,8 @@ scenarios:
   - name: testScenario
     engine: 'playwright'
     flowFunction: 'artilleryScript'
+    custom:
+      testName: "Spike Test - Flight Search"
     weight: 1  # Equal weight distribution
   
   # ============================================================================
@@ -52,6 +54,8 @@ scenarios:
   - name: flightSearchPerformance
     engine: 'playwright'
     flowFunction: 'flightSearchPerformance'
+    custom:
+      testName: "Spike Test - Flight Search"
     weight: 1  # Equal weight distribution
   
   # ============================================================================
@@ -60,4 +64,6 @@ scenarios:
   - name: vacationPagePerformance
     engine: 'playwright'
     flowFunction: 'vacationPagePerformance'
+    custom:
+      testName: "Spike Test - Flight Search"
     weight: 1  # Equal weight distribution

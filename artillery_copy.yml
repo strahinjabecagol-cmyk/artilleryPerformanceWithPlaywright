@@ -1,6 +1,5 @@
 config:
-  name: 'Webstore Performance Test'
-  target: 'https://www.demoblaze.com/index.html'
+  target: "https://www.demoblaze.com/index.html"
   engines:
     playwright:
       launchOptions:
@@ -8,41 +7,44 @@ config:
       contextOptions:
         timeout: 60000
   # Processor for webstore performance test
-  processor: './tests/artillery/webstorePerformance.js'
+  processor: "./tests/artillery/webstorePerformance.js"
   # Enable intermediate reporting for per-period metrics
   ensure:
     intermediate: true
   # Report metrics every 10 seconds
   statsInterval: 10
   phases:
-  #ramp up
-    - name : Pause
+    #ramp up
+    - name: Pause
       duration: 10
-      arrivalRate: 0  
+      arrivalRate: 0
       rampTo: 0
     #ramp up
-    - name : rampUp
+    - name: rampUp
       duration: 10
-      arrivalRate: 1  
+      arrivalRate: 1
       rampTo: 5
-  #hold at steady state for 2 minutes
+    #hold at steady state for 2 minutes
     - name: steadyState
       duration: 120
       arrivalRate: 5
-  #ramp down
-    - name : rampDown
+    #ramp down
+    - name: rampDown
       duration: 10
-      arrivalRate: 5  
-      rampTo: 0   
-       #ramp up
-    - name : Pause1
+      arrivalRate: 5
+      rampTo:
+        0
+        #ramp up
+    - name: Pause1
       duration: 10
-      arrivalRate: 0  
-      rampTo: 0 
+      arrivalRate: 0
+      rampTo: 0
 scenarios:
   # ============================================================================
   # SCENARIO: Webstore Purchase Performance Test
   # ============================================================================
   - name: webstorePurchasePerformance
-    engine: 'playwright'
-    flowFunction: 'webstorePurchasePerformance'
+    engine: "playwright"
+    flowFunction: "webstorePurchasePerformance"
+    custom:
+      testName: "Webstore Performance Test"
