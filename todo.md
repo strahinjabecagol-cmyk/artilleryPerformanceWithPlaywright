@@ -6,7 +6,8 @@
 - [x] Increase timeout for page load in Playwright configuration
 - [x] Add folder for utilities and create a util func that emits name of the test from test scenario custom.testname
 - [x] add a separate folder for Dashboard stuff and move all related files there
-- [ ] Separate CSS JS and HTML files for the dashboard into their own files
+- [x] Separate CSS JS and HTML files for the dashboard into their own files
+- [ ] Remove inline CSS from dashboard1.html and move to dashboard.css
 - [ ] move results.json file to a separate folder with results
 - [ ] Move logs to a separate folder
 - [ ] Make logs and results have unique names based on timestamp
