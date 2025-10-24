@@ -13,11 +13,11 @@ function emitTestNameOnce(events, vuContext) {
         const safeName = testName.replace(/[^a-zA-Z0-9-_]/g, '_');
 
         events.emit('counter', `TEST_NAME.${safeName}`, 1);
-        console.log(`✅ Emitted test name once: ${testName}`);
+        console.log(`[OK] Emitted test name once: ${testName}`);
 
         testNameEmitted = true;
     } catch (err) {
-        console.error('❌ Failed to emit test name:', err);
+        console.error('[ERROR] Failed to emit test name:', err);
     }
 }
 
