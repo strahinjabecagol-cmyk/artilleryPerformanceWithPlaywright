@@ -1,15 +1,15 @@
 @echo off
 REM ============================================
-REM Webstore Artillery Test Runner + Report Viewer
+REM Artillery Spike Test Runner + Local Report Viewer
 REM ============================================
 
 REM Step 0: Compile TypeScript files
 echo Compiling TypeScript files...
 call tsc
 
-REM Step 1: Run the Artillery webstore test and save results and log
-echo Running Artillery webstore load test...
-call "%AppData%\npm\artillery.cmd" run artillery_copy.yml --output results.json > execution.log 2>&1
+REM Step 1: Run the Artillery spike test and save results and log
+echo Running Artillery spike test...
+call "%AppData%\npm\artillery.cmd" run artillerySpike.yml --output results.json > execution.log 2>&1
 type execution.log
 
 REM Step 2: Kill existing HTTP server if running and start a new one

@@ -7,9 +7,10 @@ REM Step 0: Compile TypeScript files
 echo Compiling TypeScript files...
 call tsc
 
-REM Step 1: Run the Artillery test and save results
+REM Step 1: Run the Artillery test and save results and log
 echo Running Artillery load test...
-call "%AppData%\npm\artillery.cmd" run artillery.yml --output results.json
+call "%AppData%\npm\artillery.cmd" run artillery.yml --output results.json --name "Flight Search Performance Test" > execution.log 2>&1
+type execution.log
 
 REM Step 2: Kill existing HTTP server if running and start a new one
 echo Checking for existing server on port 8080...
