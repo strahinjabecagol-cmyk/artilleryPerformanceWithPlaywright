@@ -1,3 +1,4 @@
+const { emitTestNameOnce } = require('../../Util/emitTestNameOnce');
 /**
  * ============================================================================
  * WEBSTORE PURCHASE PERFORMANCE TEST
@@ -15,13 +16,10 @@
  * All metrics are emitted as histograms and work with any Artillery dashboard.
  * ============================================================================
  */
-let testNameEmitted = false;
+;
 
 async function webstorePurchasePerformance(page, vuContext, events, test) {
-    if (!testNameEmitted) {
-        testNameEmitted = true;
-        events.emit('counter', `TEST_NAME.${vuContext.scenario.custom.testName}`, 1);
-    }
+    emitTestNameOnce(events, vuContext);
     // Counter for scenario execution tracking
     events.emit('counter', `user.${vuContext.scenario.name}.webstore_purchase`, 1);
 

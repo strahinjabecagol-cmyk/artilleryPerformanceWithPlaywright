@@ -1,12 +1,9 @@
 const { selectPhillyFrom } = require('../../js-tests/commands/selectPhillyFrom');
 const { selectBerlinTo } = require('../../js-tests/commands/selectBerlinTo');
 const { clickFindFlights } = require('../../js-tests/commands/clickFindFlights');
-let testNameEmitted = false;
+const { emitTestNameOnce } = require('../../Util/emitTestNameOnce');
 async function artilleryScript(page, vuContext, events, test) {
-    if (!testNameEmitted) {
-        testNameEmitted = true;
-        events.emit('counter', `TEST_NAME.${vuContext.scenario.custom.testName}`, 1);
-    }
+    emitTestNameOnce(events, vuContext);
     events.emit('counter', `user.${vuContext.scenario.name}.Find flight`, 1);
 
     await test.step("Go to page", async () => {

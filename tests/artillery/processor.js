@@ -3,17 +3,15 @@
 const { selectPhillyFrom } = require('../../js-tests/commands/selectPhillyFrom');
 const { selectBerlinTo } = require('../../js-tests/commands/selectBerlinTo');
 const { clickFindFlights } = require('../../js-tests/commands/clickFindFlights');
-let testNameEmitted = false;
+const { emitTestNameOnce } = require('../../Util/emitTestNameOnce');
+
 // ============================================================================
 // SCENARIO 1: Original Test (artilleryScript)
 // ============================================================================
 async function artilleryScript(page, vuContext, events, test, context) {
 
     events.emit('counter', `user.${vuContext.scenario.name}.Find flight`, 1);
-    if (!testNameEmitted) {
-        testNameEmitted = true;
-        events.emit('counter', `TEST_NAME.${vuContext.scenario.custom.testName}`, 1);
-    }
+    emitTestNameOnce(events, vuContext);
     await test.step("Go to page", async () => {
         // ===================================================================
         // CUSTOM METRICS: HTTP Latency + Page Load Time
@@ -81,10 +79,7 @@ async function artilleryScript(page, vuContext, events, test, context) {
 // SCENARIO 2: Comprehensive Flight Search Performance Test
 // ============================================================================
 async function flightSearchPerformance(page, vuContext, events, test) {
-    if (!testNameEmitted) {
-        testNameEmitted = true;
-        events.emit('counter', `TEST_NAME.${vuContext.scenario.custom.testName}`, 1);
-    }
+    emitTestNameOnce(events, vuContext);
     // Counter for scenario execution tracking
     events.emit('counter', `user.${vuContext.scenario.name}.flight_search`, 1);
 
@@ -265,10 +260,7 @@ async function vacationPagePerformance(page, vuContext, events, test) {
 
     // Counter for scenario execution tracking
     events.emit('counter', `user.${vuContext.scenario.name}.vacation_page_visit`, 1);
-    if (!testNameEmitted) {
-        testNameEmitted = true;
-        events.emit('counter', `TEST_NAME.${vuContext.scenario.custom.testName}`, 1);
-    }
+    emitTestNameOnce(events, vuContext);
     // ========================================================================
     // STEP 1: Load Homepage
     // ========================================================================

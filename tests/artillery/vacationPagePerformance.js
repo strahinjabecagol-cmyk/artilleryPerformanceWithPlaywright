@@ -1,3 +1,4 @@
+const { emitTestNameOnce } = require('../../Util/emitTestNameOnce');
 /**
  * ============================================================================
  * VACATION PAGE LOAD PERFORMANCE TEST
@@ -27,12 +28,9 @@
  * - DOM Complete: ~759ms
  * ============================================================================
  */
-let testNameEmitted = false;
+
 async function vacationPagePerformance(page, vuContext, events, test) {
-    if (!testNameEmitted) {
-        testNameEmitted = true;
-        events.emit('counter', `TEST_NAME.${vuContext.scenario.custom.testName}`, 1);
-    }
+    emitTestNameOnce(events, vuContext);
     // Counter for scenario execution tracking
     events.emit('counter', `user.${vuContext.scenario.name}.vacation_page_visit`, 1);
 
