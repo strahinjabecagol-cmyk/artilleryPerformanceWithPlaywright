@@ -3,28 +3,45 @@ REM ============================================
 REM Artillery Test Runner + Local Report Viewer
 REM ============================================
 
-REM Step 0: Compile TypeScript files
+REM Get the folder where this .bat file is located
+set "SCRIPT_DIR=%~dp0"
+set "LOG_DIR=%SCRIPT_DIR%logs"
+set "RESULTS_DIR=%SCRIPT_DIR%results"
+
+REM Step 0: Ensure folders exist
+if not exist "%LOG_DIR%" (
+    echo Creating logs directory...
+    mkdir "%LOG_DIR%"
+)
+if not exist "%RESULTS_DIR%" (
+    echo Creating results directory...
+    mkdir "%RESULTS_DIR%"
+)
+
+REM Step 1: Compile TypeScript files
 echo Compiling TypeScript files...
 call tsc
 
-REM Step 1: Run the Artillery test and save results and log
+REM Step 2: Run the Artillery test
 echo Running Artillery load test...
-call "%AppData%\npm\artillery.cmd" run artillery.yml --output results.json > execution.log 2>&1
-type execution.log
+call "%AppData%\npm\artillery.cmd" run artillery.yml --output "%RESULTS_DIR%\results.json" > "%LOG_DIR%\execution.log" 2>&1
+type "%LOG_DIR%\execution.log"
 
-REM Step 2: Kill existing HTTP server if running and start a new one
+REM Step 3: Kill existing HTTP server if running and start a new one
 echo Checking for existing server on port 8080...
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr :8080 ^| findstr LISTENING') do taskkill /F /PID %%a 2>nul
 echo Starting local server on http://localhost:8080 ...
 start "" python -m http.server 8080
 
-REM Step 3: Give the server a few seconds to start
+REM Step 4: Give the server a few seconds to start
 timeout /t 3 >nul
 
-REM Step 4: Open Chrome (new tab if already running)
+REM Step 5: Open Chrome report
 echo Opening report in Chrome...
 start "" "chrome" "http://localhost:8080/Dashboard/dashboard1.html"
 
 echo ============================================
-echo All tasks completed successfully!
+echo ✅ All tasks completed successfully!
+echo 🔹 Logs saved in: %LOG_DIR%
+echo 🔹 Results saved in: %RESULTS_DIR%
 pause

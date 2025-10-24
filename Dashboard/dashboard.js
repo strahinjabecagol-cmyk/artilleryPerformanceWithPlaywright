@@ -5,7 +5,7 @@ async function loadData() {
         // ⚠️ CACHE BUSTING: Timestamp prevents browser from serving cached results.json
         // This ensures fresh data is always loaded after running new Artillery tests
         const timestamp = new Date().getTime();
-        const res = await fetch(`results.json?v=${timestamp}`);
+        const res = await fetch(`../results/results.json?v=${timestamp}`);
         console.log('Fetch response:', res.status, res.statusText);
 
         // Check if file exists
@@ -1369,7 +1369,7 @@ async function openJSONPreview() {
 
     try {
         const timestamp = new Date().getTime();
-        const res = await fetch(`results.json?v=${timestamp}`);
+        const res = await fetch(`../results/results.json?v=${timestamp}`);
         const jsonText = await res.text();
         const jsonData = JSON.parse(jsonText);
 
@@ -1554,7 +1554,7 @@ function fallbackCopyJSON(text) {
 
 // Download results.json file
 function downloadJSON() {
-    fetch('results.json')
+    fetch('../results/results.json')
         .then(res => res.blob())
         .then(blob => {
             const url = window.URL.createObjectURL(blob);
@@ -1590,7 +1590,7 @@ async function openLogPreview() {
 
     try {
         const timestamp = new Date().getTime();
-        const res = await fetch(`execution.log?v=${timestamp}`);
+        const res = await fetch(`../logs/execution.log?v=${timestamp}`);
 
         if (!res.ok) {
             content.textContent = '❌ Log file not found. Run a test to generate execution.log';
@@ -1709,7 +1709,7 @@ function fallbackCopyLog(text) {
 
 // Download execution.log file
 function downloadLog() {
-    fetch('execution.log')
+    fetch('../logs/execution.log')
         .then(res => res.blob())
         .then(blob => {
             const url = window.URL.createObjectURL(blob);

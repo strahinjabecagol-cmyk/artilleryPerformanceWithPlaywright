@@ -18,7 +18,7 @@ config:
   phases:
   # Warm-up: small constant arrival rate
   - name: warmup
-    duration: 30
+    duration: 10
     arrivalRate: 2
 
   # Spike: sudden jump from 2 to 40 VUs/sec in 10 seconds
@@ -29,12 +29,12 @@ config:
 
   # Sustain spike briefly (system under stress)
   - name: hold_spike
-    duration: 20
+    duration: 10
     arrivalRate: 40
 
   # Recovery: sudden drop back to low traffic
   - name: recovery
-    duration: 30
+    duration: 10
     arrivalRate: 2
 
 scenarios:

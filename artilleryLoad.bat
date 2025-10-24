@@ -24,7 +24,7 @@ call tsc
 
 REM Step 2: Run the Artillery test
 echo Running Artillery load test...
-call "%AppData%\npm\artillery.cmd" run artillery_copy.yml --output "%RESULTS_DIR%\results.json" > "%LOG_DIR%\execution.log" 2>&1
+call "%AppData%\npm\artillery.cmd" run artilleryLoad.yml --output "%RESULTS_DIR%\results.json" > "%LOG_DIR%\execution.log" 2>&1
 type "%LOG_DIR%\execution.log"
 
 REM Step 3: Kill existing HTTP server if running and start a new one

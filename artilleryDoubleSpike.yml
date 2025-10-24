@@ -55,6 +55,8 @@ scenarios:
   - name: testScenario
     engine: 'playwright'
     flowFunction: 'artilleryScript'
+    custom:
+      testName: "Vacation Page Performance double spike"
     weight: 1  # Equal weight distribution
   
   # ============================================================================
@@ -63,6 +65,8 @@ scenarios:
   - name: flightSearchPerformance
     engine: 'playwright'
     flowFunction: 'flightSearchPerformance'
+    custom:
+      testName: "Vacation Page Performance double spike"
     weight: 1  # Equal weight distribution
   
   # ============================================================================

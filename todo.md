@@ -8,8 +8,9 @@
 - [x] add a separate folder for Dashboard stuff and move all related files there
 - [x] Separate CSS JS and HTML files for the dashboard into their own files
 - [ ] Remove inline CSS from dashboard1.html and move to dashboard.css
-- [ ] move results.json file to a separate folder with results
-- [ ] Move logs to a separate folder
+- [x] move results.json file to a separate folder with results
+- [x] Move logs to a separate folder
+- [x] Update dashboard to read from logs/ and results/ folders
 - [ ] Make logs and results have unique names based on timestamp
 - [ ] Add functionality to the dashboard to filter logs based on test name or just bundle HTML dashboard and log and result together
 - [ ] Create a valid POC for reusing the Playwright test code in Artillery tests
