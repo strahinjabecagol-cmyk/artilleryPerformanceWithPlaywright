@@ -4,7 +4,14 @@
 
 - [x] Increase timeout for `waitForSelector` in Playwright configuration
 - [x] Increase timeout for page load in Playwright configuration
-
+- [ ] Add folder for utilities and create a util func that emits name of the test from test scenario custom.testname
+- [ ] add a separate folder for Dashboard stuff and move all related files there
+- [ ] Separate CSS JS and HTML files for the dashboard into their own files
+- [ ] move results.json file to a separate folder with results
+- [ ] Move logs to a separate folder
+- [ ] Make logs and results have unique names based on timestamp
+- [ ] Add functionality to the dashboard to filter logs based on test name or just bundle HTML dashboard and log and result together
+ 
 ## Implementation Details
 
 ### ✅ CORRECT Solution: Artillery YAML Configuration
