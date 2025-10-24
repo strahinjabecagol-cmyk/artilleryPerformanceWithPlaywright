@@ -1,80 +1,80 @@
 config:
-  name: 'Double Spike Test - Flight Search'
-  target: 'https://blazedemo.com/index.php'
+  name: "Double Spike Test - Flight Search"
+  target: "https://blazedemo.com/index.php"
   engines:
     playwright:
       launchOptions:
         headless: true
       contextOptions:
         # Set default timeouts for all Playwright operations
-        timeout: 60000  # 60 seconds for navigation and actions
+        timeout: 60000 # 60 seconds for navigation and actions
   # Combined processor with multiple scenarios
-  processor: './tests/artillery/processor.js'
+  processor: "./tests/artillery/processor.js"
   # Enable intermediate reporting for per-period metrics
   ensure:
     intermediate: true
   # Report metrics every 10 seconds
   statsInterval: 10
   phases:
-  # Warm-up: small constant arrival rate
-  - name: warmup
-    duration: 30
-    arrivalRate: 2
+    # Warm-up: small constant arrival rate
+    - name: warmup
+      duration: 10
+      arrivalRate: 2
 
-  # Spike: sudden jump from 2 to 40 VUs/sec in 10 seconds
-  - name: spike
-    duration: 10
-    arrivalRate: 2
-    rampTo: 40
+    # Spike: sudden jump from 2 to 40 VUs/sec in 10 seconds
+    - name: spike
+      duration: 10
+      arrivalRate: 2
+      rampTo: 40
 
-  # Sustain spike briefly (system under stress)
-  - name: hold_spike
-    duration: 20
-    arrivalRate: 40
+    # Sustain spike briefly (system under stress)
+    - name: hold_spike
+      duration: 20
+      arrivalRate: 40
 
-  # Second Spike: another sudden jump from 5 to 30 VUs/sec in 10 seconds
-  - name: second_spike
-    duration: 10
-    arrivalRate: 5
-    rampTo: 30
+    # Second Spike: another sudden jump from 5 to 30 VUs/sec in 10 seconds
+    - name: second_spike
+      duration: 10
+      arrivalRate: 5
+      rampTo: 30
 
-  # Sustain second spike briefly
-  - name: hold_second_spike
-    duration: 20
-    arrivalRate: 30
+    # Sustain second spike briefly
+    - name: hold_second_spike
+      duration: 20
+      arrivalRate: 30
 
-  # Recovery: sudden drop back to low traffic
-  - name: recovery
-    duration: 30
-    arrivalRate: 2
+    # Recovery: sudden drop back to low traffic
+    - name: recovery
+      duration: 30
+      arrivalRate: 2
 
 scenarios:
   # ============================================================================
   # SCENARIO 1: Original Test (uses helper functions)
   # ============================================================================
   - name: testScenario
-    engine: 'playwright'
-    flowFunction: 'artilleryScript'
+    engine: "playwright"
+    flowFunction: "artilleryScript"
     custom:
       testName: "Vacation Page Performance double spike"
-    weight: 1  # Equal weight distribution
-  
+    weight: 1 # Equal weight distribution
+
   # ============================================================================
   # SCENARIO 2: Comprehensive Flight Search Performance Test
   # ============================================================================
   - name: flightSearchPerformance
-    engine: 'playwright'
-    flowFunction: 'flightSearchPerformance'
+    engine: "playwright"
+    flowFunction: "flightSearchPerformance"
     custom:
       testName: "Vacation Page Performance double spike"
-    weight: 1  # Equal weight distribution
-  
+    weight: 1 # Equal weight distribution
+
   # ============================================================================
   # SCENARIO 3: Vacation Page Load Performance Test
   # ============================================================================
   - name: vacationPagePerformance
-    engine: 'playwright'
-    flowFunction: 'vacationPagePerformance'
+    engine: "playwright"
+    flowFunction: "vacationPagePerformance"
     custom:
       testName: "Vacation Page Performance double spike"
-    weight: 1  # Equal weight distribution
+    weight: 1 # Equal weight distribution

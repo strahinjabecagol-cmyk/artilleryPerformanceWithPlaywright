@@ -5,8 +5,10 @@ REM ============================================
 
 REM Get the folder where this .bat file is located
 set "SCRIPT_DIR=%~dp0"
-set "LOG_DIR=%SCRIPT_DIR%logs"
-set "RESULTS_DIR=%SCRIPT_DIR%results"
+REM Navigate to parent directory (project root)
+set "PROJECT_ROOT=%SCRIPT_DIR%.."
+set "LOG_DIR=%PROJECT_ROOT%\logs"
+set "RESULTS_DIR=%PROJECT_ROOT%\results"
 
 REM Step 0: Ensure folders exist
 if not exist "%LOG_DIR%" (
@@ -24,13 +26,14 @@ call tsc
 
 REM Step 2: Run the Artillery test
 echo Running Artillery load test...
-call "%AppData%\npm\artillery.cmd" run artilleryDoubleSpike.yml --output "%RESULTS_DIR%\results.json" > "%LOG_DIR%\execution.log" 2>&1
+call "%AppData%\npm\artillery.cmd" run "%PROJECT_ROOT%\artillerySpike.yml" --output "%RESULTS_DIR%\results.json" > "%LOG_DIR%\execution.log" 2>&1
 type "%LOG_DIR%\execution.log"
 
 REM Step 3: Kill existing HTTP server if running and start a new one
 echo Checking for existing server on port 8080...
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr :8080 ^| findstr LISTENING') do taskkill /F /PID %%a 2>nul
 echo Starting local server on http://localhost:8080 ...
+cd "%PROJECT_ROOT%"
 start "" python -m http.server 8080
 
 REM Step 4: Give the server a few seconds to start

@@ -16,21 +16,21 @@ config:
   statsInterval: 10
   phases:
     #injects one user every second for 10 seconds
-    # - name: constantArrival
-    #   duration: 10
-    #   arrivalRate: 1
-    # #pause
-    # - name: pause
-    #   pause: 5
+    - name: constantArrival
+      duration: 10
+      arrivalRate: 1
+    #pause
+    - name: pause
+      pause: 5
     #ramp up
     - name: rampUp
-      duration: 2
+      duration: 10
       arrivalRate: 1
-      rampTo: 1
-    # #fixed arrival
-    # - name: fixedArrival
-    #   duration: 10
-    #   arrivalRate: 15
+      rampTo: 50
+    #fixed arrival
+    - name: fixedArrival
+      duration: 10
+      arrivalRate: 15
 
 scenarios:
   # ============================================================================
