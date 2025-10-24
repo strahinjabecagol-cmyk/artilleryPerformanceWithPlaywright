@@ -23,7 +23,7 @@ timeout /t 3 >nul
 
 REM Step 4: Open Chrome (new tab if already running)
 echo Opening report in Chrome...
-start "" "chrome" "http://localhost:8080/dashboard1.html"
+start "" "chrome" "http://localhost:8080/Dashboard/dashboard1.html"
 
 echo ============================================
 echo All tasks completed successfully!
