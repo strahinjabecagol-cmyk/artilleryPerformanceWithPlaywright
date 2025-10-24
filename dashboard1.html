@@ -633,6 +633,9 @@
         <button class="export-btn" onclick="openJSONPreview()" title="Preview results.json in browser">
           👁️ Preview JSON
         </button>
+        <button class="export-btn" onclick="openLogPreview()" title="View execution log">
+          📋 View Log
+        </button>
         <button class="export-btn" onclick="exportToPNG()" title="Export dashboard as PNG image">
           📸 Export PNG
         </button>
@@ -798,6 +801,42 @@
     </div>
   </div>
 
+  <!-- Execution Log Modal -->
+  <div class="json-modal" id="logModal">
+    <div class="json-modal-content">
+      <div class="json-modal-header">
+        <div class="json-modal-title">
+          <span>📋</span>
+          <span>execution.log</span>
+          <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 400;" id="logFileSize">Loading...</span>
+        </div>
+        <div class="json-modal-actions">
+          <button class="json-action-btn copy" onclick="copyLog()" title="Copy to clipboard">
+            📋 Copy
+          </button>
+          <button class="json-action-btn" onclick="downloadLog()" title="Download file">
+            💾 Download
+          </button>
+          <button class="json-action-btn close" onclick="closeLogPreview()" title="Close preview">
+            ✕ Close
+          </button>
+        </div>
+      </div>
+      <div class="json-search-bar">
+        <input 
+          type="text" 
+          class="json-search-input" 
+          id="logSearch" 
+          placeholder="🔍 Search in log... (e.g., 'error', 'completed', 'p95')"
+          onkeyup="searchLog()"
+        />
+      </div>
+      <div class="json-modal-body">
+        <pre class="json-content" id="logContent" style="white-space: pre-wrap; font-family: 'Courier New', monospace;">Loading log data...</pre>
+      </div>
+    </div>
+  </div>
+
   <script>
     async function loadData() {
       try {
@@ -852,12 +891,18 @@
           }
         }
         
-        // Dynamic test name: prefer config.name, else extract scenario name, else fallback
-        const configName = data.config?.name || null;
+        // Extract test name from custom.test_name.* counter (emitted by processor before hook)
         const counterKeys = Object.keys(counters || {});
-        const scenarioKey = counterKeys.find(k => k.startsWith('vusers.created_by_name.'));
-        const scenarioName = scenarioKey ? scenarioKey.split('.').pop().replace(/[_-]/g,' ').replace(/([a-z])([A-Z])/g,'$1 $2').replace(/\b\w/g,c=>c.toUpperCase()) : null;
-        const finalTestName = configName || scenarioName || 'Artillery Load Test';
+        const testNameKey = counterKeys.find(k => k.startsWith('custom.test_name.'));
+        
+        let finalTestName = 'Artillery Load Test'; // Default fallback
+        
+        if (testNameKey) {
+          // Extract the test name from the counter key
+          // Format: custom.test_name.Flight_Search_Performance_Test -> Flight Search Performance Test
+          const rawName = testNameKey.replace('custom.test_name.', '');
+          finalTestName = rawName.replace(/_/g, ' '); // Replace underscores with spaces
+        }
         
         document.getElementById('testName').textContent = finalTestName;
         document.getElementById('targetUrl').textContent = targetUrl;
@@ -2363,6 +2408,161 @@
         .catch(err => {
           console.error('Error downloading JSON:', err);
           alert('Failed to download JSON file');
+        });
+    }
+    
+    // ===================================================================
+    // EXECUTION LOG MODAL FUNCTIONS
+    // ===================================================================
+    let globalLogData = null;
+    
+    // Open Log Preview Modal
+    async function openLogPreview() {
+      const modal = document.getElementById('logModal');
+      const content = document.getElementById('logContent');
+      const fileSize = document.getElementById('logFileSize');
+      const searchInput = document.getElementById('logSearch');
+      
+      modal.classList.add('active');
+      content.textContent = '⏳ Loading log data...';
+      searchInput.value = '';
+      
+      try {
+        const timestamp = new Date().getTime();
+        const res = await fetch(`execution.log?v=${timestamp}`);
+        
+        if (!res.ok) {
+          content.textContent = '❌ Log file not found. Run a test to generate execution.log';
+          fileSize.textContent = 'N/A';
+          return;
+        }
+        
+        const logText = await res.text();
+        
+        // Store globally for copy/search
+        globalLogData = logText;
+        
+        // Calculate file size
+        const sizeKB = (new Blob([logText]).size / 1024).toFixed(2);
+        fileSize.textContent = `${sizeKB} KB`;
+        
+        // Render log
+        renderLog(logText);
+        
+      } catch (error) {
+        console.error('Error loading log:', error);
+        content.textContent = '❌ Failed to load log data';
+      }
+    }
+    
+    // Close Log Preview Modal
+    function closeLogPreview() {
+      const modal = document.getElementById('logModal');
+      modal.classList.remove('active');
+    }
+    
+    // Close modal on ESC key (update existing listener)
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeJSONPreview();
+        closeLogPreview();
+      }
+    });
+    
+    // Render Log with optional search highlighting
+    function renderLog(logText, searchTerm = '') {
+      const content = document.getElementById('logContent');
+      let displayText = logText;
+      
+      // Escape HTML
+      displayText = displayText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      
+      // Apply search highlighting if search term exists
+      if (searchTerm) {
+        const regex = new RegExp(`(${escapeRegex(searchTerm)})`, 'gi');
+        displayText = displayText.replace(regex, '<span class="highlight-match">$1</span>');
+      }
+      
+      content.innerHTML = displayText;
+    }
+    
+    // Search Log
+    function searchLog() {
+      const searchInput = document.getElementById('logSearch');
+      const searchTerm = searchInput.value.trim();
+      
+      if (!globalLogData) return;
+      
+      if (searchTerm.length === 0) {
+        renderLog(globalLogData);
+        return;
+      }
+      
+      renderLog(globalLogData, searchTerm);
+    }
+    
+    // Copy Log to Clipboard
+    function copyLog() {
+      if (!globalLogData) {
+        alert('No log data to copy');
+        return;
+      }
+      
+      // Modern clipboard API
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(globalLogData).then(() => {
+          // Show success feedback
+          const btn = event.target.closest('.json-action-btn');
+          const originalText = btn.innerHTML;
+          btn.innerHTML = '✓ Copied!';
+          btn.style.background = '#059669';
+          setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.style.background = '';
+          }, 2000);
+        }).catch(err => {
+          console.error('Failed to copy:', err);
+          fallbackCopyLog(globalLogData);
+        });
+      } else {
+        fallbackCopyLog(globalLogData);
+      }
+    }
+    
+    // Fallback copy method for log
+    function fallbackCopyLog(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        alert('Log copied to clipboard!');
+      } catch (err) {
+        alert('Failed to copy log. Please try manually.');
+      }
+      document.body.removeChild(textarea);
+    }
+    
+    // Download execution.log file
+    function downloadLog() {
+      fetch('execution.log')
+        .then(res => res.blob())
+        .then(blob => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `artillery-execution-${new Date().toISOString().slice(0,10)}.log`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+        })
+        .catch(err => {
+          console.error('Failed to download log:', err);
+          alert('Failed to download log file');
         });
     }
     
