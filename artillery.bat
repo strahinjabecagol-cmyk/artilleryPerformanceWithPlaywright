@@ -9,7 +9,7 @@ call tsc
 
 REM Step 1: Run the Artillery test and save results and log
 echo Running Artillery load test...
-call "%AppData%\npm\artillery.cmd" run artillery.yml --output results.json --name "Flight Search Performance Test" > execution.log 2>&1
+call "%AppData%\npm\artillery.cmd" run artillery.yml --output results.json > execution.log 2>&1
 type execution.log
 
 REM Step 2: Kill existing HTTP server if running and start a new one

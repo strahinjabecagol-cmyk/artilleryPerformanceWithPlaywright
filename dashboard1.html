@@ -891,16 +891,16 @@
           }
         }
         
-        // Extract test name from custom.test_name.* counter (emitted by processor before hook)
+        // Extract test name from TEST_NAME.* counter (emitted by processor before hook)
         const counterKeys = Object.keys(counters || {});
-        const testNameKey = counterKeys.find(k => k.startsWith('custom.test_name.'));
+        const testNameKey = counterKeys.find(k => k.startsWith('TEST_NAME.'));
         
         let finalTestName = 'Artillery Load Test'; // Default fallback
         
         if (testNameKey) {
           // Extract the test name from the counter key
-          // Format: custom.test_name.Flight_Search_Performance_Test -> Flight Search Performance Test
-          const rawName = testNameKey.replace('custom.test_name.', '');
+          // Format: TEST_NAME.Webstore_and_Flight_Search_Performance_Test -> Webstore and Flight Search Performance Test
+          const rawName = testNameKey.replace('TEST_NAME.', '');
           finalTestName = rawName.replace(/_/g, ' '); // Replace underscores with spaces
         }
         

@@ -10,17 +10,34 @@
 **Location:** Top of dashboard, below header
 
 **Features:**
-- ✅ Test Name (Artillery Load Test)
+- ✅ Test Name (Dynamic from TEST_NAME counter or defaults to "Artillery Load Test")
 - ✅ Target URL (auto-detected from any test)
 - ✅ Test Duration (calculated in seconds)
 - ✅ Start Time (formatted timestamp)
 - ✅ Scenario Count (auto-detected)
 - ✅ Total Periods (reporting intervals)
 
+**Test Name Detection:**
+The dashboard automatically detects the test name from the `TEST_NAME.*` counter in results.json.
+
+**Example in processor.js:**
+```javascript
+beforeScenario: function (context, events, next) {
+  events.emit('counter', 'TEST_NAME.Flight_Search_Performance_Test', 1);
+  next();
+}
+```
+
+**Result in Dashboard:**
+- Counter key: `TEST_NAME.Webstore_and_Flight_Search_Performance_Test`
+- Displayed as: "Webstore and Flight Search Performance Test" (underscores converted to spaces)
+- Falls back to: "Artillery Load Test" if TEST_NAME counter is not present
+
 **Benefits:**
 - Instant context about the test run
 - No manual configuration needed
 - Professional appearance
+- Custom test names for different test suites
 
 ---
 

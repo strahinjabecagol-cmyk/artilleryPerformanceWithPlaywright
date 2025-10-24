@@ -1,6 +1,6 @@
 config:
-  name: 'Flight Search Performance Test'
-  target: 'https://blazedemo.com/index.php'
+  name: "WILL_THIS_EVER_WORK_________"
+  target: "https://blazedemo.com/index.php"
   engines:
     playwright:
       launchOptions:
@@ -8,7 +8,7 @@ config:
       contextOptions:
         timeout: 60000
   # Combined processor with multiple scenarios
-  processor: './tests/artillery/processor.js'
+  processor: "./tests/artillery/processor.js"
   # Enable intermediate reporting for per-period metrics
   ensure:
     intermediate: true
@@ -23,11 +23,11 @@ config:
     # - name: pause
     #   pause: 5
     #ramp up
-    - name : rampUp
-      duration: 10
-      arrivalRate: 1  
-      rampTo: 50
-    # #fixed arrival 
+    - name: rampUp
+      duration: 2
+      arrivalRate: 1
+      rampTo: 1
+    # #fixed arrival
     # - name: fixedArrival
     #   duration: 10
     #   arrivalRate: 15
@@ -37,22 +37,28 @@ scenarios:
   # SCENARIO 1: Original Test (uses helper functions)
   # ============================================================================
   - name: testScenario
-    engine: 'playwright'
-    flowFunction: 'artilleryScript'
-    weight: 1  # Equal weight distribution
-  
+    engine: "playwright"
+    flowFunction: "artilleryScript"
+    custom:
+      testName: "Webstore_and_Flight_Search_Performance_Test"
+    weight: 1 # Equal weight distribution
+
   # ============================================================================
   # SCENARIO 2: Comprehensive Flight Search Performance Test
   # ============================================================================
   - name: flightSearchPerformance
-    engine: 'playwright'
-    flowFunction: 'flightSearchPerformance'
-    weight: 1  # Equal weight distribution
-  
+    engine: "playwright"
+    flowFunction: "flightSearchPerformance"
+    custom:
+      testName: "Webstore_and_Flight_Search_Performance_Test"
+    weight: 1 # Equal weight distribution
+
   # ============================================================================
   # SCENARIO 3: Vacation Page Load Performance Test
   # ============================================================================
   - name: vacationPagePerformance
-    engine: 'playwright'
-    flowFunction: 'vacationPagePerformance'
-    weight: 1  # Equal weight distribution
+    engine: "playwright"
+    flowFunction: "vacationPagePerformance"
+    custom:
+      testName: "Webstore and Flight Search Performance Test"
+    weight: 1 # Equal weight distribution
