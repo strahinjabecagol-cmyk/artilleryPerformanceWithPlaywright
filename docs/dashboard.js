@@ -6,6 +6,7 @@ import { createConcurrentUsersChart } from './js/charts/concurrent-users-chart.j
 import { createHTTPRequestsChart } from './js/charts/http-requests-chart.js';
 import { createCombinedMetricsChart } from './js/charts/combined-metrics-chart.js';
 import { createPercentilesChart } from './js/charts/percentiles-chart.js';
+import { createSuccessFailureChart } from './js/charts/success-failure-chart.js';
 
 // ===================================================================
 // PATH DETECTION: Handle both local and GitHub Pages environments
@@ -356,60 +357,8 @@ async function loadData() {
             }
         });
 
-        // Success vs Failure Rate
-        // ⚠️ NOTE: This is a pie chart with bottom legend - needs compact-tall container (450px)
-        const completedCount = counters['vusers.completed'] || 0;
-        const failedCount = counters['vusers.failed'] || 0;
-        const totalVUsers = completedCount + failedCount;
-
-        new Chart(document.getElementById('successChart'), {
-            type: 'pie',
-            data: {
-                labels: ['Completed Successfully', 'Failed'],
-                datasets: [{
-                    data: [completedCount, failedCount],
-                    backgroundColor: [
-                        'rgba(34, 197, 94, 0.8)',
-                        'rgba(239, 68, 68, 0.8)'
-                    ],
-                    borderColor: ['#22c55e', '#ef4444'],
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                layout: {
-                    padding: {
-                        top: 10,
-                        bottom: 35, // ⛔ DON'T REDUCE - Needed for legend space!
-                        left: 10,
-                        right: 10
-                    }
-                },
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            color: '#94a3b8',
-                            font: { size: 12 },
-                            padding: 15,
-                            boxWidth: 15,
-                            boxHeight: 15
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function (context) {
-                                const value = context.parsed;
-                                const percentage = totalVUsers > 0 ? ((value / totalVUsers) * 100).toFixed(1) : 0;
-                                return `${context.label}: ${value} (${percentage}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
+        // Create Success vs Failure Rate Chart using the imported module
+        createSuccessFailureChart(counters);
 
         // ===================================================================
         // LATENCY DISTRIBUTION HISTOGRAM
