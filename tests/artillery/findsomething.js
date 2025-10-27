@@ -1,6 +1,7 @@
-const { selectPhillyFrom } = require('../../js-tests/commands/selectPhillyFrom');
-const { selectBerlinTo } = require('../../js-tests/commands/selectBerlinTo');
-const { clickFindFlights } = require('../../js-tests/commands/clickFindFlights');
+// Import dependencies for the original test
+const { selectPhillyFrom } = require('../../js-tests/tests/commands/findSomething.js');
+const { selectBerlinTo } = require('../../js-tests/tests/commands/findSomething.js');
+const { clickFindFlights } = require('../../js-tests/tests/commands/findSomething.js');
 const { emitTestNameOnce } = require('../../Util/emitTestNameOnce');
 async function artilleryScript(page, vuContext, events, test) {
     emitTestNameOnce(events, vuContext);

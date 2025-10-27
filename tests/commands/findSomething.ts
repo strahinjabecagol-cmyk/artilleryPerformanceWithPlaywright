@@ -12,7 +12,7 @@ export async function gotoPage(page: any) {
     await page.goto('https://blazedemo.com/index.php');
 
 }
-export async function SelectPhillyFrom(page: any) {
+export async function selectPhillyFrom(page: any) {
     await page.locator('select[name="fromPort"]').selectOption('Philadelphia');
 
 }
@@ -25,4 +25,4 @@ export async function clickFindFlights(page: any) {
 
 }
 
-module.exports = { findSomething, gotoPage, SelectPhillyFrom, selectBerlinTo, clickFindFlights };
+module.exports = { findSomething, gotoPage, selectPhillyFrom, selectBerlinTo, clickFindFlights };
