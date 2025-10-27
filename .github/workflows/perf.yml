@@ -24,22 +24,34 @@ jobs:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-browsers
 
-      - name: Install deps
+      - name: Install dependencies
         run: |
           npm ci
+          # Use cached Playwright browsers if available
           npx playwright install chromium
+          # Ensure proper engine plugin is available
           npm i -D artillery-engine-playwright
 
-      # ✅ Compile TypeScript (required for js-tests/)
+      # Compile TypeScript → js-tests/
       - name: Compile TypeScript
-        run: |
-          npx tsc
+        run: npx tsc
 
+      # 🔍 Debug compiled structure (helps confirm require paths)
+      - name: Debug compiled output
+        run: |
+          echo "===== DEBUG: Compiled JS files ====="
+          ls -R js-tests || echo "⚠️  No js-tests folder found"
+          echo ""
+          echo "===== DEBUG: tests/artillery structure ====="
+          ls -R tests/artillery || true
+
+      # Run Artillery load test
       - name: Run Artillery
         run: |
           mkdir -p results logs
           npx artillery run artillery.yml --output results/results.json > logs/execution.log 2>&1 || cat logs/execution.log
 
+      # Upload results and logs
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
