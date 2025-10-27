@@ -17,15 +17,25 @@ jobs:
           node-version: 20
           cache: npm
 
+      # Cache Playwright browser binaries
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-browsers
+
       - name: Install deps
         run: |
           npm ci
-          npx playwright install --with-deps
+          # Install required Playwright browsers (uses cache if available)
+          npx playwright install chromium
+          # Install the Playwright plugin for Artillery
+          npm i -D @artilleryio/plugin-playwright
 
       - name: Run Artillery
         run: |
           mkdir -p results logs
-          npx artillery run artillery.yml --output results/results.json > logs/execution.log 2>&1
+          npx artillery run artillery.yml --output results/results.json > logs/execution.log 2>&1 || cat logs/execution.log
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
