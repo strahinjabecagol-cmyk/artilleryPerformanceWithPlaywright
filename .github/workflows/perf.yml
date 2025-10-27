@@ -30,7 +30,7 @@ jobs:
           npx playwright install chromium
           npm i -D artillery-engine-playwright
 
-      # ✅ New: Compile TypeScript
+      # ✅ Compile TypeScript (required for js-tests/)
       - name: Compile TypeScript
         run: |
           npx tsc
