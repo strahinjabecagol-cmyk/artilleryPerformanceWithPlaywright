@@ -1,0 +1,36 @@
+name: Perf - Artillery + Playwright
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install deps
+        run: |
+          npm ci
+          npx playwright install --with-deps
+
+      - name: Run Artillery
+        run: |
+          mkdir -p results logs
+          npx artillery run artillery.yml --output results/results.json > logs/execution.log 2>&1
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-run
+          path: |
+            results/results.json
+            logs/execution.log
