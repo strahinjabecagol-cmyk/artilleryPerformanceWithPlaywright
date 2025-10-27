@@ -19,18 +19,18 @@ config:
     - name: constantArrival
       duration: 10
       arrivalRate: 1
-    #pause
-    - name: pause
-      pause: 5
-    #ramp up
-    - name: rampUp
-      duration: 10
-      arrivalRate: 1
-      rampTo: 50
-    #fixed arrival
-    - name: fixedArrival
-      duration: 10
-      arrivalRate: 15
+    # #pause
+    # - name: pause
+    #   pause: 5
+    # #ramp up
+    # - name: rampUp
+    #   duration: 10
+    #   arrivalRate: 1
+    #   rampTo: 50
+    # #fixed arrival
+    # - name: fixedArrival
+    #   duration: 10
+    #   arrivalRate: 15
 
 scenarios:
   # ============================================================================
