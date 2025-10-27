@@ -9,7 +9,7 @@ node_modules/
 /.playwright-mcp/
 
 # Artillery test results (generated artifacts)
-results.json*
+#results.json*
 
 
 
@@ -17,7 +17,7 @@ results.json*
 /js-tests/
 
 # Logs
-*.log
+#*.log
 npm-debug.log*
 
 # OS files
