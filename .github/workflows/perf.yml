@@ -50,7 +50,7 @@ jobs:
       - name: Run Artillery
         run: |
           mkdir -p results logs
-          npx artillery run artillery_copy.yml --output results/results.json 2>&1 | tee logs/execution.log
+          npx artillery run artillery.yml --output results/results.json 2>&1 | tee logs/execution.log
 
       # Copy results into /docs for GitHub Pages
       - name: Copy artifacts into docs
