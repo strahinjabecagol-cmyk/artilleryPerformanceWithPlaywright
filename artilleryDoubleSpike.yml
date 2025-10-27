@@ -19,33 +19,33 @@ config:
     # Warm-up: small constant arrival rate
     - name: warmup
       duration: 10
-      arrivalRate: 2
+      arrivalRate: 1
 
     # Spike: sudden jump from 2 to 40 VUs/sec in 10 seconds
     - name: spike
       duration: 10
-      arrivalRate: 2
-      rampTo: 40
+      arrivalRate: 1
+      rampTo: 5
 
     # Sustain spike briefly (system under stress)
     - name: hold_spike
       duration: 20
-      arrivalRate: 40
+      arrivalRate: 5
 
     # Second Spike: another sudden jump from 5 to 30 VUs/sec in 10 seconds
     - name: second_spike
       duration: 10
-      arrivalRate: 5
-      rampTo: 30
+      arrivalRate: 1
+      rampTo: 3
 
     # Sustain second spike briefly
     - name: hold_second_spike
       duration: 20
-      arrivalRate: 30
+      arrivalRate: 3
 
     # Recovery: sudden drop back to low traffic
     - name: recovery
-      duration: 30
+      duration: 15
       arrivalRate: 2
 
 scenarios:
