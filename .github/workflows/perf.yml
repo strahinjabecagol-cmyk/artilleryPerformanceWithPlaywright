@@ -27,10 +27,13 @@ jobs:
       - name: Install deps
         run: |
           npm ci
-          # Install required Playwright browsers (uses cache if available)
           npx playwright install chromium
-          # Correct engine package for Artillery
           npm i -D artillery-engine-playwright
+
+      # ✅ New: Compile TypeScript
+      - name: Compile TypeScript
+        run: |
+          npx tsc
 
       - name: Run Artillery
         run: |
