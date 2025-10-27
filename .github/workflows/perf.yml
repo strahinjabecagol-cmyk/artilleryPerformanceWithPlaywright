@@ -3,6 +3,9 @@ name: Perf - Artillery + Playwright
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -27,14 +30,16 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
+          # Use cached Playwright browsers if available
           npx playwright install chromium
+          # Ensure proper engine plugin is available
           npm i -D artillery-engine-playwright
 
       # Compile TypeScript → js-tests/
       - name: Compile TypeScript
         run: npx tsc
 
-      # Debug compiled structure
+      # 🔍 Debug compiled structure (helps confirm require paths)
       - name: Debug compiled output
         run: |
           echo "===== DEBUG: Compiled JS files ====="
@@ -58,7 +63,7 @@ jobs:
             results/results.json
             logs/execution.log
 
-      # ✅ Commit and push results back to main (even if ignored)
+      # ✅ Commit and push results back to main
       - name: Commit and push results
         if: success()
         env:
@@ -66,6 +71,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -f results/ logs/
+          git add results/ logs/
           git commit -m "Add latest performance test results [skip ci]" || echo "No changes to commit"
           git push origin main
