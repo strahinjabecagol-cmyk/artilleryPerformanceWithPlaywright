@@ -1,9 +1,15 @@
 {
-  "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "outDir": "js-tests",
-    "rootDir": "./tests"
-  },
-  "include": ["tests/**/*"]
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "outDir": "./js-tests",
+        "rootDir": "./"
+    },
+    "include": [
+        "tests/**/*",
+        "playwright.config.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
 }
