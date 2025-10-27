@@ -7,8 +7,8 @@ REM Get the folder where this .bat file is located
 set "SCRIPT_DIR=%~dp0"
 REM Navigate to parent directory (project root)
 set "PROJECT_ROOT=%SCRIPT_DIR%.."
-set "LOG_DIR=%PROJECT_ROOT%\logs"
-set "RESULTS_DIR=%PROJECT_ROOT%\results"
+set "LOG_DIR=%PROJECT_ROOT%\docs\logs"
+set "RESULTS_DIR=%PROJECT_ROOT%\docs\results"
 
 REM Step 0: Ensure folders exist
 if not exist "%LOG_DIR%" (
