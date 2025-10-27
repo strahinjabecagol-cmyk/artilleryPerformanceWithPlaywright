@@ -27,16 +27,14 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-          # Use cached Playwright browsers if available
           npx playwright install chromium
-          # Ensure proper engine plugin is available
           npm i -D artillery-engine-playwright
 
       # Compile TypeScript → js-tests/
       - name: Compile TypeScript
         run: npx tsc
 
-      # 🔍 Debug compiled structure (helps confirm require paths)
+      # Debug compiled structure
       - name: Debug compiled output
         run: |
           echo "===== DEBUG: Compiled JS files ====="
@@ -49,9 +47,9 @@ jobs:
       - name: Run Artillery
         run: |
           mkdir -p results logs
-          npx artillery run artillery.yml --output results/results.json > logs/execution.log 2>&1 || cat logs/execution.log
+          npx artillery run artillery.yml --output results/results.json 2>&1 | tee logs/execution.log
 
-      # Upload results and logs
+      # Upload results and logs as artifact
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -59,3 +57,15 @@ jobs:
           path: |
             results/results.json
             logs/execution.log
+
+      # ✅ Commit and push results back to main (even if ignored)
+      - name: Commit and push results
+        if: success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f results/ logs/
+          git commit -m "Add latest performance test results [skip ci]" || echo "No changes to commit"
+          git push origin main
