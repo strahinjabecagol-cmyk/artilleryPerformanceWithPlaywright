@@ -1,11 +1,31 @@
 // Artillery Performance Dashboard - JavaScript
+
+// ===================================================================
+// PATH DETECTION: Handle both local and GitHub Pages environments
+// ===================================================================
+function getBasePath() {
+    const pathname = window.location.pathname;
+    // If running from GitHub Pages project repo, pathname will include /artilleryPerformanceWithPlaywright/
+    if (pathname.includes('/artilleryPerformanceWithPlaywright/')) {
+        return '/artilleryPerformanceWithPlaywright';
+    }
+    // Local development: docs folder is served at /docs/
+    if (pathname.includes('/docs/')) {
+        return '/docs';
+    }
+    // User pages or root
+    return '';
+}
+
+const BASE_PATH = getBasePath();
+
 async function loadData() {
     try {
         console.log('Fetching results.json...');
         // ⚠️ CACHE BUSTING: Timestamp prevents browser from serving cached results.json
         // This ensures fresh data is always loaded after running new Artillery tests
         const timestamp = new Date().getTime();
-        const res = await fetch(`./results/results.json?v=${timestamp}`);
+        const res = await fetch(`${BASE_PATH}/results/results.json?v=${timestamp}`);
         console.log('Fetch response:', res.status, res.statusText);
 
         // Check if file exists
@@ -1369,7 +1389,7 @@ async function openJSONPreview() {
 
     try {
         const timestamp = new Date().getTime();
-        const res = await fetch(`./results/results.json?v=${timestamp}`);
+        const res = await fetch(`${BASE_PATH}/results/results.json?v=${timestamp}`);
         const jsonText = await res.text();
         const jsonData = JSON.parse(jsonText);
 
@@ -1554,7 +1574,7 @@ function fallbackCopyJSON(text) {
 
 // Download results.json file
 function downloadJSON() {
-    fetch('./results/results.json')
+    fetch(`${BASE_PATH}/results/results.json`)
         .then(res => res.blob())
         .then(blob => {
             const url = window.URL.createObjectURL(blob);
@@ -1590,7 +1610,7 @@ async function openLogPreview() {
 
     try {
         const timestamp = new Date().getTime();
-        const res = await fetch(`./logs/execution.log?v=${timestamp}`);
+        const res = await fetch(`${BASE_PATH}/logs/execution.log?v=${timestamp}`);
 
         if (!res.ok) {
             content.textContent = '❌ Log file not found. Run a test to generate execution.log';
@@ -1709,7 +1729,7 @@ function fallbackCopyLog(text) {
 
 // Download execution.log file
 function downloadLog() {
-    fetch('./logs/execution.log')
+    fetch(`${BASE_PATH}/logs/execution.log`)
         .then(res => res.blob())
         .then(blob => {
             const url = window.URL.createObjectURL(blob);
