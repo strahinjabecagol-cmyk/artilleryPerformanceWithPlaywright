@@ -3,6 +3,7 @@ import { createThroughputChart } from './js/charts/throughput-chart.js';
 import { createFCPChart } from './js/charts/fcp-chart.js';
 import { createVUsersActivityChart } from './js/charts/vusers-activity-chart.js';
 import { createConcurrentUsersChart } from './js/charts/concurrent-users-chart.js';
+import { createHTTPRequestsChart } from './js/charts/http-requests-chart.js';
 
 // ===================================================================
 // PATH DETECTION: Handle both local and GitHub Pages environments
@@ -288,63 +289,8 @@ async function loadData() {
 
         createThroughputChart(data, periods);
 
-        // HTTP Requests per Period Chart
-        const httpRequestsData = data.intermediate.map(i => i.counters?.['browser.http_requests'] || 0);
-        new Chart(document.getElementById('httpRequestsChart'), {
-            type: 'bar',
-            data: {
-                labels: periods,
-                datasets: [
-                    {
-                        label: 'HTTP Requests',
-                        data: httpRequestsData,
-                        backgroundColor: 'rgba(139, 92, 246, 0.8)',
-                        borderColor: '#8b5cf6',
-                        borderWidth: 1
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                layout: {
-                    padding: {
-                        top: 10,
-                        bottom: 10,
-                        left: 5,
-                        right: 5
-                    }
-                },
-                plugins: {
-                    title: { display: false },
-                    legend: {
-                        display: true,
-                        labels: { color: '#94a3b8', font: { size: 11 } }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: '#334155' },
-                        ticks: {
-                            color: '#94a3b8',
-                            font: { size: 10 },
-                            padding: 5
-                        }
-                    },
-                    x: {
-                        grid: { color: '#334155' },
-                        ticks: {
-                            color: '#94a3b8',
-                            font: { size: 10 },
-                            padding: 5,
-                            maxRotation: 0,
-                            autoSkip: true
-                        }
-                    }
-                }
-            }
-        });
+        // Create HTTP Requests Chart using the imported module
+        createHTTPRequestsChart(periods, data);
 
         // ===================================================================
         // COMBINED PERFORMANCE METRICS CHART
