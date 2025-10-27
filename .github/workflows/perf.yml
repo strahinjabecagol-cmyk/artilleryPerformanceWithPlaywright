@@ -29,8 +29,8 @@ jobs:
           npm ci
           # Install required Playwright browsers (uses cache if available)
           npx playwright install chromium
-          # Install the Playwright plugin for Artillery
-          npm i -D @artilleryio/plugin-playwright
+          # Correct engine package for Artillery
+          npm i -D artillery-engine-playwright
 
       - name: Run Artillery
         run: |
