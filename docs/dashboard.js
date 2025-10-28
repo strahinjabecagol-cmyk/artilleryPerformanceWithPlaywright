@@ -7,25 +7,8 @@ import { createHTTPRequestsChart } from './js/charts/http-requests-chart.js';
 import { createCombinedMetricsChart } from './js/charts/combined-metrics-chart.js';
 import { createPercentilesChart } from './js/charts/percentiles-chart.js';
 import { createSuccessFailureChart } from './js/charts/success-failure-chart.js';
-
-// ===================================================================
-// PATH DETECTION: Handle both local and GitHub Pages environments
-// ===================================================================
-function getBasePath() {
-    const pathname = window.location.pathname;
-    // If running from GitHub Pages project repo, pathname will include /artilleryPerformanceWithPlaywright/
-    if (pathname.includes('/artilleryPerformanceWithPlaywright/')) {
-        return '/artilleryPerformanceWithPlaywright';
-    }
-    // Local development: docs folder is served at /docs/
-    if (pathname.includes('/docs/')) {
-        return '/docs';
-    }
-    // User pages or root
-    return '';
-}
-
-const BASE_PATH = getBasePath();
+import { initializeEventListeners } from './js/utils/event-handlers.js';
+import { BASE_PATH } from './js/utils/path-config.js';
 
 async function loadData() {
     try {
@@ -1103,4 +1086,6 @@ function captureAndDownload() {
     }, 100);
 }
 
+// Initialize event listeners and load data when the page loads
+initializeEventListeners();
 loadData();
