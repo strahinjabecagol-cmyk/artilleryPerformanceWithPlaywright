@@ -15,13 +15,140 @@ import { initializeEventListeners } from './js/utils/event-handlers.js';
 import { BASE_PATH } from './js/utils/path-config.js';
 import { createApdexCard } from './js/utils/apdex-calculator.js';
 
-async function loadData() {
+// ===================================================================
+// REPORT SELECTOR FUNCTIONALITY
+// ===================================================================
+
+/**
+ * Fetch list of available JSON reports from the results folder
+ * Attempts to fetch common report names to see which ones exist
+ * @returns {Promise<Array>} Array of report filenames
+ */
+async function fetchAvailableReports() {
+    try {
+        const timestamp = new Date().getTime();
+        const commonReportNames = [
+            'results.json',
+            'results_baseline.json',
+            'results_previous.json',
+            'results_2025-10-28.json',
+            'results_2025-10-27.json',
+            'results_2025-10-26.json',
+            'results_load.json',
+            'results_stress.json',
+            'results_spike.json'
+        ];
+        
+        const availableReports = [];
+        
+        // Try to fetch each common report name
+        for (const reportName of commonReportNames) {
+            try {
+                const response = await fetch(`${BASE_PATH}/results/${reportName}?v=${timestamp}`, { method: 'HEAD' });
+                if (response.ok) {
+                    availableReports.push(reportName);
+                }
+            } catch (err) {
+                // Report doesn't exist, continue to next
+                continue;
+            }
+        }
+        
+        // Also try to fetch from a reports manifest file if it exists
+        try {
+            const manifestResponse = await fetch(`${BASE_PATH}/results/manifest.json?v=${timestamp}`);
+            if (manifestResponse.ok) {
+                const manifest = await manifestResponse.json();
+                if (manifest.reports && Array.isArray(manifest.reports)) {
+                    // Add reports from manifest that aren't already in the list
+                    manifest.reports.forEach(report => {
+                        if (!availableReports.includes(report)) {
+                            availableReports.push(report);
+                        }
+                    });
+                }
+            }
+        } catch (err) {
+            // Manifest doesn't exist, that's fine
+        }
+        
+        return availableReports.sort().reverse(); // Most recent first
+    } catch (error) {
+        console.error('Error fetching available reports:', error);
+        return [];
+    }
+}
+
+/**
+ * Populate the report dropdown with available JSON files
+ */
+async function populateReportDropdown() {
+    const dropdown = document.getElementById('reportDropdown');
+    if (!dropdown) return;
+
+    try {
+        const reports = await fetchAvailableReports();
+        
+        dropdown.innerHTML = '<option value="">-- Select a report --</option>';
+        
+        if (reports.length === 0) {
+            dropdown.innerHTML += '<option disabled>No reports found</option>';
+            dropdown.disabled = true;
+            return;
+        }
+
+        reports.forEach(report => {
+            const option = document.createElement('option');
+            option.value = report;
+            option.textContent = report;
+            dropdown.appendChild(option);
+        });
+
+        dropdown.disabled = false;
+        
+        // Auto-select results.json if available
+        const resultsJsonOption = dropdown.querySelector('option[value="results.json"]');
+        if (resultsJsonOption) {
+            dropdown.value = 'results.json';
+        }
+    } catch (error) {
+        console.error('Error populating report dropdown:', error);
+    }
+}
+
+/**
+ * Load a specific report and refresh the dashboard
+ * @param {string} reportPath - Path to the JSON report file
+ */
+async function loadReport(reportPath) {
+    if (!reportPath) return;
+    
+    try {
+        console.log(`Loading report: ${reportPath}`);
+        
+        // Store the selected report in localStorage for persistence
+        localStorage.setItem('selectedReport', reportPath);
+        
+        // Reload the dashboard with the new report
+        location.reload();
+    } catch (error) {
+        console.error('Error loading report:', error);
+    }
+}
+
+async function loadData(reportPath = null) {
     try {
         console.log('Fetching results.json...');
         // ⚠️ CACHE BUSTING: Timestamp prevents browser from serving cached results.json
         // This ensures fresh data is always loaded after running new Artillery tests
         const timestamp = new Date().getTime();
-        const res = await fetch(`${BASE_PATH}/results/results.json?v=${timestamp}`);
+        
+        // Use provided reportPath or default to results.json
+        const resolvedReportPath = reportPath || localStorage.getItem('selectedReport') || 'results.json';
+        const fetchUrl = `${BASE_PATH}/results/${resolvedReportPath}?v=${timestamp}`;
+        
+        console.log(`Loading report from: ${fetchUrl}`);
+        const res = await fetch(fetchUrl);
         console.log('Fetch response:', res.status, res.statusText);
 
         // Check if file exists
@@ -306,6 +433,25 @@ function showNoDataMessage() {
     header.after(noDataDiv);
 }
 
+/**
+ * Initialize report selector dropdown event listeners
+ */
+async function initializeReportSelector() {
+    const dropdown = document.getElementById('reportDropdown');
+    if (!dropdown) return;
+
+    // Populate dropdown with available reports
+    await populateReportDropdown();
+
+    // Handle report selection change
+    dropdown.addEventListener('change', (event) => {
+        if (event.target.value) {
+            loadReport(event.target.value);
+        }
+    });
+}
+
 // Initialize event listeners and load data when the page loads
 initializeEventListeners();
+initializeReportSelector();
 loadData();
