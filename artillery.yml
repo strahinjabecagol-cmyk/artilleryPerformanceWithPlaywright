@@ -9,9 +9,9 @@ config:
         timeout: 60000
   # Combined processor with multiple scenarios
   processor: "./tests/artillery/processor.js"
-  # Enable intermediate reporting for per-period metrics
-  ensure:
-    intermediate: true
+  # # Enable intermediate reporting for per-period metrics
+  # ensure:
+  #   thresholds: true
   # Report metrics every 10 seconds
   statsInterval: 10
   phases:
