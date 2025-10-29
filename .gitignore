@@ -10,7 +10,8 @@ node_modules/
 
 # Artillery test results (generated artifacts)
 #results.json*
-
+#Keys
+*.env
 
 
 # TypeScript compiled output
@@ -31,3 +32,4 @@ desktop.ini
 *.swp
 *.swo
 *~
+.env
