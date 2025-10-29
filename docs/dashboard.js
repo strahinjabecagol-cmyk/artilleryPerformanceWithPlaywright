@@ -361,6 +361,12 @@ async function loadData(reportPath = null) {
         // Create Latency Histogram using the imported module
         createLatencyHistogramChart(data);
 
+        // Create Error Breakdown Chart using the imported module
+        createErrorBreakdownChart(counters);
+
+        // Create Step Breakdown Chart using the imported module
+        createStepBreakdownChart(summaries);
+
     } catch (error) {
         console.error('Error loading dashboard data:', error);
         showNoDataMessage();

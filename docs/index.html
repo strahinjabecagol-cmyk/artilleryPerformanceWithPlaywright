@@ -19,32 +19,40 @@
   <body>
     <div class="container">
       <header>
-        <div class="data-info">
-          <span class="status"></span>
-          <span id="lastUpdated">Loading...</span>
-        </div>
-        <div class="export-buttons">
-          <div class="report-selector">
-            <label for="reportDropdown" title="Select a previously saved report to view">📁 Report:</label>
-            <select id="reportDropdown" title="Choose from available test reports">
-              <option value="">-- Loading reports --</option>
-            </select>
+        <div class="header-top">
+          <div class="header-title">
+            <h1>🪖 Artillery Performance Dashboard 🪖</h1>
+            <div class="subtitle">Performance metrics and analysis</div>
           </div>
-          <button class="export-btn" id="previewJsonBtn" title="Preview results.json in browser">
-            👁️ Preview JSON
-          </button>
-          <button class="export-btn" id="previewLogBtn" title="View execution log">
-            📋 View Log
-          </button>
-          <button class="export-btn" id="exportPngBtn" title="Export dashboard as PNG image">
-            📸 Export PNG
-          </button>
-          <button class="export-btn" id="downloadJsonBtn" title="Download results.json file">
-            💾 Download JSON
-          </button>
         </div>
-        <h1>🪖 Artillery Performance Dashboard 🪖</h1>
-        <div class="subtitle">Performance metrics and analysis</div>
+        <div class="header-bottom">
+          <div class="header-left">
+            <div class="header-status">
+              <span class="status"></span>
+              <span id="lastUpdated">Loading...</span>
+            </div>
+            <div class="report-selector">
+              <label for="reportDropdown" title="Select a previously saved report to view">📁 Report:</label>
+              <select id="reportDropdown" title="Choose from available test reports">
+                <option value="">-- Loading reports --</option>
+              </select>
+            </div>
+          </div>
+          <div class="export-buttons">
+            <button class="export-btn" id="previewJsonBtn" title="Preview results.json in browser">
+              👁️ Preview JSON
+            </button>
+            <button class="export-btn" id="previewLogBtn" title="View execution log">
+              📋 View Log
+            </button>
+            <button class="export-btn" id="exportPngBtn" title="Export dashboard as PNG image">
+              📸 Export PNG
+            </button>
+            <button class="export-btn" id="downloadJsonBtn" title="Download results.json file">
+              💾 Download JSON
+            </button>
+          </div>
+        </div>
       </header>
 
       <!-- Test Metadata -->
