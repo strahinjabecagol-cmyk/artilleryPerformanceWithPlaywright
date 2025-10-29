@@ -2,16 +2,18 @@
 import {
     openJSONPreview,
     closeJSONPreview,
+    searchJSON,
+    copyJSON,
+    downloadJSON
+} from '../modals/json-modal.js';
+import {
     openLogPreview,
     closeLogPreview,
-    searchJSON,
     searchLog,
-    copyJSON,
     copyLog,
-    downloadJSON,
-    downloadLog,
-    exportToPNG
-} from './dashboard-utils.js';
+    downloadLog
+} from '../modals/log-modal.js';
+import { exportToPNG } from './png-export.js';
 
 export function initializeEventListeners() {
     // Button click handlers
