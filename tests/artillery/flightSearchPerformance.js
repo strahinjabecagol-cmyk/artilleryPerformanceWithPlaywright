@@ -38,63 +38,10 @@ async function flightSearchPerformance(page, vuContext, events, test) {
         events.emit('histogram', 'custom.page_load_time', httpLatency);
 
         // ====================================================================
-        // CAPTURE CORE WEB VITALS & BROWSER PERFORMANCE METRICS
+        // CAPTURE CORE WEB VITALS & BROWSER PERFORMANCE METRICS (reusable)
         // ====================================================================
-        try {
-            const perfMetrics = await page.evaluate(() => {
-                const perf = performance.getEntriesByType('navigation')[0];
-                const paint = performance.getEntriesByType('paint');
-                const fcp = paint.find(p => p.name === 'first-contentful-paint');
-                const lcp = performance.getEntriesByType('largest-contentful-paint').slice(-1)[0];
-
-                return {
-                    // Core Web Vitals
-                    fcp: fcp?.startTime || 0,
-                    lcp: lcp?.renderTime || lcp?.loadTime || 0,
-
-                    // Navigation Timing
-                    ttfb: perf ? perf.responseStart - perf.requestStart : 0,
-                    domContentLoaded: perf ? perf.domContentLoadedEventEnd - perf.domContentLoadedEventStart : 0,
-                    loadComplete: perf ? perf.loadEventEnd - perf.loadEventStart : 0,
-
-                    // DNS & Connection
-                    dnsTime: perf ? perf.domainLookupEnd - perf.domainLookupStart : 0,
-                    tcpTime: perf ? perf.connectEnd - perf.connectStart : 0,
-
-                    // Response
-                    responseTime: perf ? perf.responseEnd - perf.responseStart : 0,
-                    domParseTime: perf ? perf.domComplete - perf.domInteractive : 0
-                };
-            });
-
-            // Emit Core Web Vitals (generic metrics for dashboard)
-            if (perfMetrics.fcp > 0) {
-                events.emit('histogram', 'custom.fcp', perfMetrics.fcp);
-            }
-            if (perfMetrics.lcp > 0) {
-                events.emit('histogram', 'custom.lcp', perfMetrics.lcp);
-            }
-            if (perfMetrics.ttfb > 0) {
-                events.emit('histogram', 'custom.ttfb', perfMetrics.ttfb);
-            }
-
-            // Emit additional performance metrics
-            if (perfMetrics.dnsTime > 0) {
-                events.emit('histogram', 'custom.dns_time', perfMetrics.dnsTime);
-            }
-            if (perfMetrics.tcpTime > 0) {
-                events.emit('histogram', 'custom.tcp_time', perfMetrics.tcpTime);
-            }
-            if (perfMetrics.responseTime > 0) {
-                events.emit('histogram', 'custom.response_time', perfMetrics.responseTime);
-            }
-            if (perfMetrics.domContentLoaded > 0) {
-                events.emit('histogram', 'custom.dom_content_loaded', perfMetrics.domContentLoaded);
-            }
-
-        } catch (error) {
-            console.warn('[Performance] Could not capture browser metrics:', error.message);
-        }
+        const { capturePerformanceMetrics } = require('../../Util/capturePerformanceMetrics');
+        await capturePerformanceMetrics(page, events, 'custom');
     });
 
     // ========================================================================
@@ -135,36 +82,9 @@ async function flightSearchPerformance(page, vuContext, events, test) {
         events.emit('counter', `custom.search_status_${statusCode}`, 1);
 
         // ====================================================================
-        // MEASURE RESULTS PAGE PERFORMANCE
+        // MEASURE RESULTS PAGE PERFORMANCE (reusable)
         // ====================================================================
-        try {
-            const resultsPageMetrics = await page.evaluate(() => {
-                const perf = performance.getEntriesByType('navigation')[0];
-                const paint = performance.getEntriesByType('paint');
-                const fcp = paint.find(p => p.name === 'first-contentful-paint');
-
-                return {
-                    fcp: fcp?.startTime || 0,
-                    ttfb: perf ? perf.responseStart - perf.requestStart : 0,
-                    domReady: perf ? perf.domContentLoadedEventEnd - perf.fetchStart : 0,
-                    fullLoad: perf ? perf.loadEventEnd - perf.fetchStart : 0
-                };
-            });
-
-            // Emit results page metrics
-            if (resultsPageMetrics.fcp > 0) {
-                events.emit('histogram', 'custom.results_page_fcp', resultsPageMetrics.fcp);
-            }
-            if (resultsPageMetrics.ttfb > 0) {
-                events.emit('histogram', 'custom.results_page_ttfb', resultsPageMetrics.ttfb);
-            }
-            if (resultsPageMetrics.domReady > 0) {
-                events.emit('histogram', 'custom.results_page_dom_ready', resultsPageMetrics.domReady);
-            }
-
-        } catch (error) {
-            console.warn('[Performance] Could not capture results page metrics:', error.message);
-        }
+        await capturePerformanceMetrics(page, events, 'custom.results_page');
 
         // ====================================================================
         // VERIFY RESULTS LOADED

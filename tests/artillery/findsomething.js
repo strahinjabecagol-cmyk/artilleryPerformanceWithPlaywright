@@ -27,34 +27,10 @@ async function artilleryScript(page, vuContext, events, test) {
         events.emit('histogram', 'custom.page_load_time', pageLoadTime);
 
         // ===================================================================
-        // OPTIONAL: Capture browser performance metrics manually
+        // OPTIONAL: Capture browser performance metrics manually (reusable)
         // ===================================================================
-        try {
-            const perfMetrics = await page.evaluate(() => {
-                const perf = performance.getEntriesByType('navigation')[0];
-                const paint = performance.getEntriesByType('paint');
-                const fcp = paint.find(p => p.name === 'first-contentful-paint');
-
-                return {
-                    fcp: fcp?.startTime || 0,
-                    ttfb: perf?.responseStart - perf?.requestStart || 0,
-                    domContentLoaded: perf?.domContentLoadedEventEnd - perf?.domContentLoadedEventStart || 0,
-                    loadComplete: perf?.loadEventEnd - perf?.loadEventStart || 0
-                };
-            });
-
-            // Emit browser metrics for per-period tracking
-            if (perfMetrics.fcp > 0) {
-                events.emit('histogram', 'custom.fcp', perfMetrics.fcp);
-            }
-            if (perfMetrics.ttfb > 0) {
-                events.emit('histogram', 'custom.ttfb', perfMetrics.ttfb);
-            }
-
-        } catch (error) {
-            // Silently fail if performance metrics aren't available
-            console.warn('Could not capture performance metrics:', error.message);
-        }
+        const { capturePerformanceMetrics } = require('../../Util/capturePerformanceMetrics');
+        await capturePerformanceMetrics(page, events, 'custom');
     });
 
     await test.step("Select Philadelphia as departure", async () => {

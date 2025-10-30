@@ -32,34 +32,10 @@ async function artilleryScript(page, vuContext, events, test, context) {
         events.emit('histogram', 'custom.page_load_time', pageLoadTime);
 
         // ===================================================================
-        // OPTIONAL: Capture browser performance metrics manually
+        // OPTIONAL: Capture browser performance metrics manually (reusable)
         // ===================================================================
-        try {
-            const perfMetrics = await page.evaluate(() => {
-                const perf = performance.getEntriesByType('navigation')[0];
-                const paint = performance.getEntriesByType('paint');
-                const fcp = paint.find(p => p.name === 'first-contentful-paint');
-
-                return {
-                    fcp: fcp?.startTime || 0,
-                    ttfb: perf?.responseStart - perf?.requestStart || 0,
-                    domContentLoaded: perf?.domContentLoadedEventEnd - perf?.domContentLoadedEventStart || 0,
-                    loadComplete: perf?.loadEventEnd - perf?.loadEventStart || 0
-                };
-            });
-
-            // Emit browser metrics for per-period tracking
-            if (perfMetrics.fcp > 0) {
-                events.emit('histogram', 'custom.fcp', perfMetrics.fcp);
-            }
-            if (perfMetrics.ttfb > 0) {
-                events.emit('histogram', 'custom.ttfb', perfMetrics.ttfb);
-            }
-
-        } catch (error) {
-            // Silently fail if performance metrics aren't available
-            console.warn('Could not capture performance metrics:', error.message);
-        }
+        const { capturePerformanceMetrics } = require('../../Util/capturePerformanceMetrics');
+        await capturePerformanceMetrics(page, events, 'custom');
     });
 
     await test.step("Select Philadelphia as departure", async () => {
@@ -90,9 +66,7 @@ async function flightSearchPerformance(page, vuContext, events, test) {
         const navigationStart = Date.now();
 
         // Navigate to homepage
-        await page.goto('https://blazedemo.com/index.php', {
-            waitUntil: 'domcontentloaded'
-        });
+        await page.goto('https://blazedemo.com/index.php')
 
         // Measure HTTP navigation latency
         const httpLatency = Date.now() - navigationStart;
@@ -102,61 +76,9 @@ async function flightSearchPerformance(page, vuContext, events, test) {
         // ====================================================================
         // CAPTURE CORE WEB VITALS & BROWSER PERFORMANCE METRICS
         // ====================================================================
-        try {
-            const perfMetrics = await page.evaluate(() => {
-                const perf = performance.getEntriesByType('navigation')[0];
-                const paint = performance.getEntriesByType('paint');
-                const fcp = paint.find(p => p.name === 'first-contentful-paint');
-                const lcp = performance.getEntriesByType('largest-contentful-paint').slice(-1)[0];
-
-                return {
-                    // Core Web Vitals
-                    fcp: fcp?.startTime || 0,
-                    lcp: lcp?.renderTime || lcp?.loadTime || 0,
-
-                    // Navigation Timing
-                    ttfb: perf ? perf.responseStart - perf.requestStart : 0,
-                    domContentLoaded: perf ? perf.domContentLoadedEventEnd - perf.domContentLoadedEventStart : 0,
-                    loadComplete: perf ? perf.loadEventEnd - perf.loadEventStart : 0,
-
-                    // DNS & Connection
-                    dnsTime: perf ? perf.domainLookupEnd - perf.domainLookupStart : 0,
-                    tcpTime: perf ? perf.connectEnd - perf.connectStart : 0,
-
-                    // Response
-                    responseTime: perf ? perf.responseEnd - perf.responseStart : 0,
-                    domParseTime: perf ? perf.domComplete - perf.domInteractive : 0
-                };
-            });
-
-            // Emit Core Web Vitals (generic metrics for dashboard)
-            if (perfMetrics.fcp > 0) {
-                events.emit('histogram', 'custom.fcp', perfMetrics.fcp);
-            }
-            if (perfMetrics.lcp > 0) {
-                events.emit('histogram', 'custom.lcp', perfMetrics.lcp);
-            }
-            if (perfMetrics.ttfb > 0) {
-                events.emit('histogram', 'custom.ttfb', perfMetrics.ttfb);
-            }
-
-            // Emit additional performance metrics
-            if (perfMetrics.dnsTime > 0) {
-                events.emit('histogram', 'custom.dns_time', perfMetrics.dnsTime);
-            }
-            if (perfMetrics.tcpTime > 0) {
-                events.emit('histogram', 'custom.tcp_time', perfMetrics.tcpTime);
-            }
-            if (perfMetrics.responseTime > 0) {
-                events.emit('histogram', 'custom.response_time', perfMetrics.responseTime);
-            }
-            if (perfMetrics.domContentLoaded > 0) {
-                events.emit('histogram', 'custom.dom_content_loaded', perfMetrics.domContentLoaded);
-            }
-
-        } catch (error) {
-            console.warn('[Performance] Could not capture browser metrics:', error.message);
-        }
+        // Use reusable function for browser performance metrics
+        const { capturePerformanceMetrics } = require('../../Util/capturePerformanceMetrics');
+        await capturePerformanceMetrics(page, events, 'custom');
     });
 
     // ========================================================================
@@ -199,34 +121,8 @@ async function flightSearchPerformance(page, vuContext, events, test) {
         // ====================================================================
         // MEASURE RESULTS PAGE PERFORMANCE
         // ====================================================================
-        try {
-            const resultsPageMetrics = await page.evaluate(() => {
-                const perf = performance.getEntriesByType('navigation')[0];
-                const paint = performance.getEntriesByType('paint');
-                const fcp = paint.find(p => p.name === 'first-contentful-paint');
-
-                return {
-                    fcp: fcp?.startTime || 0,
-                    ttfb: perf ? perf.responseStart - perf.requestStart : 0,
-                    domReady: perf ? perf.domContentLoadedEventEnd - perf.fetchStart : 0,
-                    fullLoad: perf ? perf.loadEventEnd - perf.fetchStart : 0
-                };
-            });
-
-            // Emit results page metrics
-            if (resultsPageMetrics.fcp > 0) {
-                events.emit('histogram', 'custom.results_page_fcp', resultsPageMetrics.fcp);
-            }
-            if (resultsPageMetrics.ttfb > 0) {
-                events.emit('histogram', 'custom.results_page_ttfb', resultsPageMetrics.ttfb);
-            }
-            if (resultsPageMetrics.domReady > 0) {
-                events.emit('histogram', 'custom.results_page_dom_ready', resultsPageMetrics.domReady);
-            }
-
-        } catch (error) {
-            console.warn('[Performance] Could not capture results page metrics:', error.message);
-        }
+        // Use reusable function for results page metrics
+        await capturePerformanceMetrics(page, events, 'custom.results_page');
 
         // ====================================================================
         // VERIFY RESULTS LOADED
@@ -295,57 +191,9 @@ async function vacationPagePerformance(page, vuContext, events, test) {
         const statusCode = response.status();
         events.emit('counter', `custom.vacation_status_${statusCode}`, 1);
 
-        // ====================================================================
-        // MEASURE VACATION PAGE PERFORMANCE
-        // ====================================================================
-        try {
-            const perfMetrics = await page.evaluate(() => {
-                const perf = performance.getEntriesByType('navigation')[0];
-                const paint = performance.getEntriesByType('paint');
-                const fcp = paint.find(p => p.name === 'first-contentful-paint');
-
-                return {
-                    // Core Web Vitals
-                    fcp: fcp?.startTime || 0,
-                    ttfb: perf ? perf.responseStart - perf.requestStart : 0,
-
-                    // Navigation Timing
-                    domInteractive: perf ? perf.domInteractive - perf.fetchStart : 0,
-                    domComplete: perf ? perf.domComplete - perf.fetchStart : 0,
-                    loadComplete: perf ? perf.loadEventEnd - perf.fetchStart : 0,
-
-                    // Network Timing
-                    dnsTime: perf ? perf.domainLookupEnd - perf.domainLookupStart : 0,
-                    tcpTime: perf ? perf.connectEnd - perf.connectStart : 0,
-                    responseTime: perf ? perf.responseEnd - perf.responseStart : 0
-                };
-            });
-
-            // Emit vacation page metrics
-            if (perfMetrics.fcp > 0) {
-                events.emit('histogram', 'custom.vacation_fcp', perfMetrics.fcp);
-            }
-            if (perfMetrics.ttfb > 0) {
-                events.emit('histogram', 'custom.vacation_ttfb', perfMetrics.ttfb);
-            }
-            if (perfMetrics.domComplete > 0) {
-                events.emit('histogram', 'custom.vacation_dom_complete', perfMetrics.domComplete);
-            }
-            if (perfMetrics.loadComplete > 0) {
-                events.emit('histogram', 'custom.vacation_load_complete', perfMetrics.loadComplete);
-            }
-
-            // Emit network timing metrics
-            if (perfMetrics.dnsTime > 0) {
-                events.emit('histogram', 'custom.vacation_dns_time', perfMetrics.dnsTime);
-            }
-            if (perfMetrics.responseTime > 0) {
-                events.emit('histogram', 'custom.vacation_response_time', perfMetrics.responseTime);
-            }
-
-        } catch (error) {
-            console.warn('[Vacation Page] Could not capture performance metrics:', error.message);
-        }
+        
+        // Use reusable function for vacation page metrics
+        await capturePerformanceMetrics(page, events, 'custom.vacation');
 
         // ====================================================================
         // VERIFY PAGE LOADED CORRECTLY

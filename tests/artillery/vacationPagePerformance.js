@@ -69,56 +69,10 @@ async function vacationPagePerformance(page, vuContext, events, test) {
         events.emit('counter', `custom.vacation_status_${statusCode}`, 1);
 
         // ====================================================================
-        // MEASURE VACATION PAGE PERFORMANCE
+        // MEASURE VACATION PAGE PERFORMANCE (reusable)
         // ====================================================================
-        try {
-            const perfMetrics = await page.evaluate(() => {
-                const perf = performance.getEntriesByType('navigation')[0];
-                const paint = performance.getEntriesByType('paint');
-                const fcp = paint.find(p => p.name === 'first-contentful-paint');
-
-                return {
-                    // Core Web Vitals
-                    fcp: fcp?.startTime || 0,
-                    ttfb: perf ? perf.responseStart - perf.requestStart : 0,
-
-                    // Navigation Timing
-                    domInteractive: perf ? perf.domInteractive - perf.fetchStart : 0,
-                    domComplete: perf ? perf.domComplete - perf.fetchStart : 0,
-                    loadComplete: perf ? perf.loadEventEnd - perf.fetchStart : 0,
-
-                    // Network Timing
-                    dnsTime: perf ? perf.domainLookupEnd - perf.domainLookupStart : 0,
-                    tcpTime: perf ? perf.connectEnd - perf.connectStart : 0,
-                    responseTime: perf ? perf.responseEnd - perf.responseStart : 0
-                };
-            });
-
-            // Emit vacation page metrics
-            if (perfMetrics.fcp > 0) {
-                events.emit('histogram', 'custom.vacation_fcp', perfMetrics.fcp);
-            }
-            if (perfMetrics.ttfb > 0) {
-                events.emit('histogram', 'custom.vacation_ttfb', perfMetrics.ttfb);
-            }
-            if (perfMetrics.domComplete > 0) {
-                events.emit('histogram', 'custom.vacation_dom_complete', perfMetrics.domComplete);
-            }
-            if (perfMetrics.loadComplete > 0) {
-                events.emit('histogram', 'custom.vacation_load_complete', perfMetrics.loadComplete);
-            }
-
-            // Emit network timing metrics
-            if (perfMetrics.dnsTime > 0) {
-                events.emit('histogram', 'custom.vacation_dns_time', perfMetrics.dnsTime);
-            }
-            if (perfMetrics.responseTime > 0) {
-                events.emit('histogram', 'custom.vacation_response_time', perfMetrics.responseTime);
-            }
-
-        } catch (error) {
-            console.warn('[Vacation Page] Could not capture performance metrics:', error.message);
-        }
+        const { capturePerformanceMetrics } = require('../../Util/capturePerformanceMetrics');
+        await capturePerformanceMetrics(page, events, 'custom.vacation');
 
         // ====================================================================
         // VERIFY PAGE LOADED CORRECTLY
