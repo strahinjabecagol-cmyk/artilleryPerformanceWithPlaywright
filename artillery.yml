@@ -15,28 +15,18 @@ config:
   # Report metrics every 10 seconds
   statsInterval: 10
   phases:
-    #injects one user every second for 10 seconds
-    - name: pause 1
-      pause: 10
-    - name: constantArrival
-      duration: 10
+    - name: Ramp-up for local test
+      duration: 60
       arrivalRate: 1
-    #ramp up
-    - name: constantArrival 1
-      duration: 10
-      arrivalRate: 1
-      rampTo: 30
-    #sustain
-    - name: constantArrival 2
-      duration: 10
-      arrivalRate: 15
-      #dropoff
-    - name: constantArrival 3
-      duration: 10
-      arrivalRate: 15
+      rampTo: 3
+    - name: Steady state local test
+      duration: 120 # Run for 2 minutes at steady load
+      arrivalRate: 3
+      # This arrival rate (3 per second) keeps concurrency low enough for your PC
+    - name: Ramp-down
+      duration: 30
+      arrivalRate: 3
       rampTo: 0
-    - name: pause 2
-      pause: 10
 
 scenarios:
   # ============================================================================
