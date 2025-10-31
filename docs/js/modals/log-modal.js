@@ -1,6 +1,8 @@
 // Log Modal Module
 
 let globalLogData = null;
+let logMatchIndices = [];
+let logCurrentMatchIndex = 0;
 
 // Open Log Preview Modal
 export async function openLogPreview() {
@@ -46,10 +48,19 @@ export async function openLogPreview() {
 export function closeLogPreview() {
     const modal = document.getElementById('logModal');
     modal.classList.remove('active');
+    // Clear match count and disable nav buttons
+    const matchCount = document.getElementById('logMatchCount');
+    const prevBtn = document.getElementById('logPrevMatch');
+    const nextBtn = document.getElementById('logNextMatch');
+    if (matchCount) matchCount.textContent = '';
+    if (prevBtn) prevBtn.disabled = true;
+    if (nextBtn) nextBtn.disabled = true;
 }
 
+window.closeLogPreview = closeLogPreview;
+
 // Render Log with optional search highlighting
-function renderLog(logText, searchTerm = '') {
+function renderLog(logText, searchTerm = '', highlightIndex = -1) {
     const content = document.getElementById('logContent');
     let displayText = logText;
 
@@ -58,27 +69,90 @@ function renderLog(logText, searchTerm = '') {
 
     // Apply search highlighting if search term exists
     if (searchTerm) {
+        // Find all matches
         const regex = new RegExp(`(${escapeRegex(searchTerm)})`, 'gi');
-        displayText = displayText.replace(regex, '<span class="highlight-match">$1</span>');
+        let matchIdx = 0;
+        logMatchIndices = [];
+        displayText = displayText.replace(regex, function(match) {
+            logMatchIndices.push(matchIdx++);
+            return `<span class="highlight-match">${match}</span>`;
+        });
+        // Highlight current match
+        if (highlightIndex >= 0 && logMatchIndices.length > 0) {
+            let count = 0;
+            displayText = displayText.replace(/<span class="highlight-match">(.*?)<\/span>/g, function(m, g1) {
+                if (count === highlightIndex) {
+                    count++;
+                    return `<span class="highlight-match current-match">${g1}</span>`;
+                }
+                count++;
+                return m;
+            });
+        }
     }
 
     content.innerHTML = displayText;
+
+    // Scroll current match into view
+    setTimeout(() => {
+        const current = content.querySelector('.current-match');
+        if (current) {
+            current.scrollIntoView({ block: 'center', behavior: 'auto' });
+        }
+    }, 0);
 }
 
 // Search Log
-export function searchLog() {
+export function searchLog(direction = null) {
     const searchInput = document.getElementById('logSearch');
     const searchTerm = searchInput.value.trim();
+    const matchCount = document.getElementById('logMatchCount');
+    const prevBtn = document.getElementById('logPrevMatch');
+    const nextBtn = document.getElementById('logNextMatch');
 
     if (!globalLogData) return;
 
-    if (searchTerm.length === 0) {
+    // Reset current match index if search term changed
+    if (window._lastLogSearchTerm !== searchTerm) {
+        logCurrentMatchIndex = 0;
+        window._lastLogSearchTerm = searchTerm;
+    }
+
+    if (searchTerm.length < 3) {
         renderLog(globalLogData);
+        if (matchCount) matchCount.textContent = '';
+        if (prevBtn) prevBtn.disabled = true;
+        if (nextBtn) nextBtn.disabled = true;
         return;
     }
 
-    renderLog(globalLogData, searchTerm);
+    renderLog(globalLogData, searchTerm, logCurrentMatchIndex);
+    // Count matches
+    const totalMatches = logMatchIndices.length;
+    if (matchCount) {
+        matchCount.textContent = totalMatches > 0 ? `${logCurrentMatchIndex + 1} of ${totalMatches} matches` : 'No matches';
+    }
+    if (prevBtn) prevBtn.disabled = totalMatches <= 1;
+    if (nextBtn) nextBtn.disabled = totalMatches <= 1;
 }
+
+window.searchLog = searchLog;
+
+export function nextLogMatch() {
+    if (logMatchIndices.length === 0) return;
+    logCurrentMatchIndex = (logCurrentMatchIndex + 1) % logMatchIndices.length;
+    searchLog();
+}
+
+window.nextLogMatch = nextLogMatch;
+
+export function prevLogMatch() {
+    if (logMatchIndices.length === 0) return;
+    logCurrentMatchIndex = (logCurrentMatchIndex - 1 + logMatchIndices.length) % logMatchIndices.length;
+    searchLog();
+}
+
+window.prevLogMatch = prevLogMatch;
 
 // Copy Log to Clipboard
 export function copyLog() {
@@ -87,9 +161,12 @@ export function copyLog() {
         return;
     }
 
+    // Find the copy button
+    const btn = document.getElementById('logModal').querySelector('.json-action-btn.copy');
+
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(globalLogData).then(() => {
-            showCopySuccess(event);
+            showCopySuccess(btn);
         }).catch(err => {
             console.error('Failed to copy:', err);
             fallbackCopyLog(globalLogData);
@@ -98,6 +175,8 @@ export function copyLog() {
         fallbackCopyLog(globalLogData);
     }
 }
+
+window.copyLog = copyLog;
 
 // Download execution.log file
 export async function downloadLog() {
@@ -134,8 +213,7 @@ function fallbackCopyLog(text) {
     document.body.removeChild(textarea);
 }
 
-function showCopySuccess(event) {
-    const btn = event.target.closest('.json-action-btn');
+function showCopySuccess(btn) {
     if (!btn) return;
     const originalText = btn.innerHTML;
     btn.innerHTML = '✓ Copied!';

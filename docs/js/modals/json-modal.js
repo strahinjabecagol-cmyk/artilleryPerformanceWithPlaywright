@@ -1,6 +1,9 @@
 // JSON Modal Module
 
 let globalJSONData = null;
+let matchIndices = [];
+let currentMatchIndex = 0;
+let isFilteredView = false; // Track if currently filtered
 
 // Open JSON Preview Modal
 export async function openJSONPreview() {
@@ -8,10 +11,16 @@ export async function openJSONPreview() {
     const content = document.getElementById('jsonContent');
     const fileSize = document.getElementById('jsonFileSize');
     const searchInput = document.getElementById('jsonSearch');
+    const matchCount = document.getElementById('jsonMatchCount');
+    const prevBtn = document.getElementById('jsonPrevMatch');
+    const nextBtn = document.getElementById('jsonNextMatch');
 
     modal.classList.add('active');
     content.innerHTML = '<div style="text-align:center;color:#94a3b8;">⏳ Loading JSON data...</div>';
     searchInput.value = '';
+    if (matchCount) matchCount.textContent = '';
+    if (prevBtn) prevBtn.disabled = true;
+    if (nextBtn) nextBtn.disabled = true;
 
     try {
         const { BASE_PATH } = await import('../utils/path-config.js');
@@ -42,8 +51,10 @@ export function closeJSONPreview() {
     modal.classList.remove('active');
 }
 
+window.closeJSONPreview = closeJSONPreview;
+
 // Render JSON with Syntax Highlighting
-function renderJSON(data, searchTerm = '') {
+function renderJSON(data, searchTerm = '', highlightIndex = -1) {
     const content = document.getElementById('jsonContent');
     let jsonString = JSON.stringify(data, null, 2);
 
@@ -52,8 +63,26 @@ function renderJSON(data, searchTerm = '') {
 
     // Apply search highlighting if search term exists
     if (searchTerm) {
+        // Find all matches
         const regex = new RegExp(`(${escapeRegex(searchTerm)})`, 'gi');
-        jsonString = jsonString.replace(regex, '<span class="highlight-match">$1</span>');
+        let matchIdx = 0;
+        matchIndices = [];
+        jsonString = jsonString.replace(regex, function(match) {
+            matchIndices.push(matchIdx++);
+            return `<span class="highlight-match">${match}</span>`;
+        });
+        // Highlight current match
+        if (highlightIndex >= 0 && matchIndices.length > 0) {
+            let count = 0;
+            jsonString = jsonString.replace(/<span class="highlight-match">(.*?)<\/span>/g, function(m, g1) {
+                if (count === highlightIndex) {
+                    count++;
+                    return `<span class="highlight-match current-match">${g1}</span>`;
+                }
+                count++;
+                return m;
+            });
+        }
     }
 
     content.innerHTML = jsonString;
@@ -80,21 +109,71 @@ function syntaxHighlight(json) {
 }
 
 // Search JSON
-export function searchJSON() {
+export function searchJSON(direction = null) {
     const searchInput = document.getElementById('jsonSearch');
     const searchTerm = searchInput.value.trim();
+    const matchCount = document.getElementById('jsonMatchCount');
+    const prevBtn = document.getElementById('jsonPrevMatch');
+    const nextBtn = document.getElementById('jsonNextMatch');
+
 
     if (!globalJSONData) return;
 
-    if (searchTerm.length === 0) {
-        renderJSON(globalJSONData);
+    if (searchTerm.length < 3) {
+        if (isFilteredView) {
+            renderJSON(globalJSONData);
+            isFilteredView = false;
+        }
+        if (matchCount) matchCount.textContent = '';
+        if (prevBtn) prevBtn.disabled = true;
+        if (nextBtn) nextBtn.disabled = true;
+        console.log('Search term too short, reset view.');
         return;
     }
 
     // Filter JSON based on search term
     const filtered = filterJSON(globalJSONData, searchTerm);
-    renderJSON(filtered, searchTerm);
+    renderJSON(filtered, searchTerm, currentMatchIndex);
+    isFilteredView = true;
+    // Count matches
+    const totalMatches = matchIndices.length;
+    if (matchCount) {
+        matchCount.textContent = totalMatches > 0 ? `${currentMatchIndex + 1} of ${totalMatches} matches` : 'No matches';
+    }
+    if (prevBtn) prevBtn.disabled = totalMatches <= 1;
+    if (nextBtn) nextBtn.disabled = totalMatches <= 1;
 }
+
+// Debounce for search input
+let jsonSearchTimeout = null;
+window.searchJSON = function() {
+    clearTimeout(jsonSearchTimeout);
+    const searchInput = document.getElementById('jsonSearch');
+    const searchTerm = searchInput.value.trim();
+    if (searchTerm.length < 3) {
+        searchJSON();
+        return;
+    }
+    jsonSearchTimeout = setTimeout(() => {
+        searchJSON();
+    }, 250);
+};
+
+export function nextJSONMatch() {
+    if (matchIndices.length === 0) return;
+    currentMatchIndex = (currentMatchIndex + 1) % matchIndices.length;
+    searchJSON();
+}
+
+window.nextJSONMatch = nextJSONMatch;
+
+export function prevJSONMatch() {
+    if (matchIndices.length === 0) return;
+    currentMatchIndex = (currentMatchIndex - 1 + matchIndices.length) % matchIndices.length;
+    searchJSON();
+}
+
+window.prevJSONMatch = prevJSONMatch;
 
 // Filter JSON recursively
 function filterJSON(obj, searchTerm) {

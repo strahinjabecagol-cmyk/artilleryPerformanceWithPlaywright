@@ -219,8 +219,13 @@
           </div>
         </div>
         <div class="json-search-bar">
-          <input type="text" class="json-search-input" id="jsonSearch"
-            placeholder="🔍 Search in JSON... (e.g., 'vusers', 'FCP', 'mean')" onkeyup="searchJSON()" />
+          <div style="display: flex; align-items: center; width: 100%; gap: 0.5rem;">
+            <input type="text" class="json-search-input" id="jsonSearch"
+              placeholder="🔍 Search in JSON... (e.g., 'vusers', 'FCP', 'mean')" onkeyup="searchJSON()" />
+            <span id="jsonMatchCount" class="json-match-count"></span>
+            <button id="jsonPrevMatch" class="json-action-btn" onclick="prevJSONMatch()" title="Previous match">▲ Prev</button>
+            <button id="jsonNextMatch" class="json-action-btn" onclick="nextJSONMatch()" title="Next match">▼ Next</button>
+          </div>
         </div>
         <div class="json-modal-body">
           <div class="json-content" id="jsonContent">Loading JSON data...</div>
@@ -250,8 +255,13 @@
           </div>
         </div>
         <div class="json-search-bar">
-          <input type="text" class="json-search-input" id="logSearch"
-            placeholder="🔍 Search in log... (e.g., 'error', 'completed', 'p95')" onkeyup="searchLog()" />
+          <div style="display: flex; align-items: center; width: 100%; gap: 0.5rem;">
+            <input type="text" class="json-search-input" id="logSearch"
+              placeholder="🔍 Search in log... (e.g., 'error', 'completed', 'p95')" onkeyup="searchLog()" />
+            <span id="logMatchCount" class="json-match-count"></span>
+            <button id="logPrevMatch" class="json-action-btn" onclick="prevLogMatch()" title="Previous match">▲ Prev</button>
+            <button id="logNextMatch" class="json-action-btn" onclick="nextLogMatch()" title="Next match">▼ Next</button>
+          </div>
         </div>
         <div class="json-modal-body">
           <pre class="json-content" id="logContent"

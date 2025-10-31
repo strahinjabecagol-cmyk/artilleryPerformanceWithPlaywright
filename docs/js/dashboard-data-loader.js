@@ -15,7 +15,7 @@ import { createApdexCard } from './utils/apdex-calculator.js';
 
 export async function loadData(reportPath = null) {
     try {
-        console.log('Fetching results.json...');
+        // console.log('Fetching results.json...');
         const data = await loadDashboardData();
         if (!data) {
             window.showNoDataMessage();
@@ -28,8 +28,8 @@ export async function loadData(reportPath = null) {
         const counters = data.aggregate?.counters || {};
         const summaries = data.aggregate?.summaries || {};
 
-        console.log('Counters:', counters);
-        console.log('Summaries:', summaries);
+        // console.log('Counters:', counters);
+        // console.log('Summaries:', summaries);
 
         // Extract duration and start time safely
         const durationMs = data.aggregate?.duration || 0;
@@ -161,7 +161,7 @@ export async function fetchAvailableReports() {
 export async function loadReport(reportPath) {
     if (!reportPath) return;
     try {
-        console.log(`Loading report: ${reportPath}`);
+        // console.log(`Loading report: ${reportPath}`);
         localStorage.setItem('selectedReport', reportPath);
         location.reload();
     } catch (error) {
@@ -175,16 +175,16 @@ export async function loadReport(reportPath) {
  */
 export async function loadDashboardData() {
     try {
-        console.log('Fetching results.json...');
+        // console.log('Fetching results.json...');
         const timestamp = new Date().getTime();
         const resolvedReportPath = 'results.json';
         const fetchUrl = `${BASE_PATH}/results/${resolvedReportPath}?v=${timestamp}`;
-        console.log(`Loading report from: ${fetchUrl}`);
+        // console.log(`Loading report from: ${fetchUrl}`);
         const res = await fetch(fetchUrl);
-        console.log('Fetch response:', res.status, res.statusText);
+        // console.log('Fetch response:', res.status, res.statusText);
         if (!res.ok) return null;
         const data = await res.json();
-        console.log('Data loaded successfully:', data);
+        // console.log('Data loaded successfully:', data);
         if (!data || !data.aggregate || !data.intermediate || data.intermediate.length === 0) return null;
         return data;
     } catch (error) {
