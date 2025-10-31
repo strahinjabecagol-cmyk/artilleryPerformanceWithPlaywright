@@ -4,7 +4,7 @@ const { selectPhillyFrom } = require('../../js-tests/tests/commands/findSomethin
 const { selectBerlinTo } = require('../../js-tests/tests/commands/findSomething.js');
 const { clickFindFlights } = require('../../js-tests/tests/commands/findSomething.js');
 const { emitTestNameOnce } = require('../../Util/emitTestNameOnce');
-
+const { capturePerformanceMetrics } = require('../../Util/capturePerformanceMetrics');
 // ============================================================================
 // SCENARIO 1: Original Test (artilleryScript)
 // ============================================================================
@@ -34,8 +34,8 @@ async function artilleryScript(page, vuContext, events, test, context) {
         // ===================================================================
         // OPTIONAL: Capture browser performance metrics manually (reusable)
         // ===================================================================
-        const { capturePerformanceMetrics } = require('../../Util/capturePerformanceMetrics');
-        await capturePerformanceMetrics(page, events, 'custom');
+
+        await capturePerformanceMetrics(await page, await events, 'custom');
     });
 
     await test.step("Select Philadelphia as departure", async () => {
@@ -77,8 +77,7 @@ async function flightSearchPerformance(page, vuContext, events, test) {
         // CAPTURE CORE WEB VITALS & BROWSER PERFORMANCE METRICS
         // ====================================================================
         // Use reusable function for browser performance metrics
-        const { capturePerformanceMetrics } = require('../../Util/capturePerformanceMetrics');
-        await capturePerformanceMetrics(page, events, 'custom');
+        await capturePerformanceMetrics(await page, await events, 'custom');
     });
 
     // ========================================================================
@@ -122,7 +121,7 @@ async function flightSearchPerformance(page, vuContext, events, test) {
         // MEASURE RESULTS PAGE PERFORMANCE
         // ====================================================================
         // Use reusable function for results page metrics
-        await capturePerformanceMetrics(page, events, 'custom.results_page');
+        await capturePerformanceMetrics(await page, await events, 'custom.results_page');
 
         // ====================================================================
         // VERIFY RESULTS LOADED
@@ -191,9 +190,9 @@ async function vacationPagePerformance(page, vuContext, events, test) {
         const statusCode = response.status();
         events.emit('counter', `custom.vacation_status_${statusCode}`, 1);
 
-        
+
         // Use reusable function for vacation page metrics
-        await capturePerformanceMetrics(page, events, 'custom.vacation');
+        await capturePerformanceMetrics(await page, await events, 'custom.vacation');
 
         // ====================================================================
         // VERIFY PAGE LOADED CORRECTLY

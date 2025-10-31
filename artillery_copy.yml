@@ -25,14 +25,13 @@ config:
       rampTo: 5
     #hold at steady state for 2 minutes
     - name: steadyState
-      duration: 20
+      duration: 180
       arrivalRate: 5
     #ramp down
     - name: rampDown
       duration: 10
       arrivalRate: 5
-      rampTo:
-        0
+      rampTo: 0
     #final pause
     - name: finalPause
       duration: 10
@@ -45,4 +44,4 @@ scenarios:
     engine: "playwright"
     flowFunction: "webstorePurchasePerformance"
     custom:
-      testName: "Webstore Performance Test"
+      testName: "D grejt Webstore Performance Test"
