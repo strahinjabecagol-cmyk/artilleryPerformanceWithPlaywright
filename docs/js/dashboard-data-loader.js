@@ -1,6 +1,6 @@
 // dashboard-data-loader.js
 // Handles all data loading logic for the Artillery Performance Dashboard
-import { BASE_PATH } from './js/utils/path-config.js';
+import { BASE_PATH } from './utils/path-config.js';
 
 /**
  * Fetch list of available JSON reports from the results folder

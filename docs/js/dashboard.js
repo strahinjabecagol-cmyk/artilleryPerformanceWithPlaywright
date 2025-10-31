@@ -1,21 +1,21 @@
 // Artillery Performance Dashboard - JavaScript
-import { createThroughputChart } from './js/charts/throughput-chart.js';
-import { createFCPChart } from './js/charts/fcp-chart.js';
-import { createVUsersActivityChart } from './js/charts/vusers-activity-chart.js';
-import { createConcurrentUsersChart } from './js/charts/concurrent-users-chart.js';
-import { createHTTPRequestsChart } from './js/charts/http-requests-chart.js';
-import { createCombinedMetricsChart } from './js/charts/combined-metrics-chart.js';
-import { createPercentilesChart } from './js/charts/percentiles-chart.js';
-import { createSuccessFailureChart } from './js/charts/success-failure-chart.js';
-import { createStatusCodesChart } from './js/charts/status-codes-chart.js';
-import { createLatencyHistogramChart } from './js/charts/latency-histogram.js';
-import { createErrorBreakdownChart } from './js/charts/error-breakdown.js';
-import { createStepBreakdownChart } from './js/charts/step-breakdown.js';
-import { initializeEventListeners } from './js/utils/event-handlers.js';
-import { BASE_PATH } from './js/utils/path-config.js';
-import { createApdexCard } from './js/utils/apdex-calculator.js';
-import { fetchAvailableReports, loadReport, loadDashboardData } from './dashboard-data-loader.js';
-import { downloadLog } from './js/modals/log-modal.js';
+import { createThroughputChart } from './charts/throughput-chart.js';
+import { createFCPChart } from './charts/fcp-chart.js';
+import { createVUsersActivityChart } from './charts/vusers-activity-chart.js';
+import { createConcurrentUsersChart } from './charts/concurrent-users-chart.js';
+import { createHTTPRequestsChart } from './charts/http-requests-chart.js';
+import { createCombinedMetricsChart } from './charts/combined-metrics-chart.js';
+import { createPercentilesChart } from './charts/percentiles-chart.js';
+import { createSuccessFailureChart } from './charts/success-failure-chart.js';
+import { createStatusCodesChart } from './charts/status-codes-chart.js';
+import { createLatencyHistogramChart } from './charts/latency-histogram.js';
+import { createErrorBreakdownChart } from './charts/error-breakdown.js';
+import { createStepBreakdownChart } from './charts/step-breakdown.js';
+import { initializeEventListeners } from './utils/event-handlers.js';
+import { BASE_PATH } from './utils/path-config.js';
+import { createApdexCard } from './utils/apdex-calculator.js';
+import { fetchAvailableReports, loadReport, loadDashboardData } from '../dashboard-data-loader.js';
+import { downloadLog } from './modals/log-modal.js';
 
 // Expose downloadLog globally for inline onclick usage
 window.downloadLog = downloadLog;
