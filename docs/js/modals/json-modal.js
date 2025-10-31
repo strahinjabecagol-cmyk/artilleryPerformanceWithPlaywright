@@ -86,6 +86,16 @@ function renderJSON(data, searchTerm = '', highlightIndex = -1) {
     }
 
     content.innerHTML = jsonString;
+    // Scroll to current match if present
+    if (highlightIndex >= 0) {
+        // Use setTimeout to ensure DOM is updated
+        setTimeout(() => {
+            const current = content.querySelector('.current-match');
+            if (current) {
+                current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 0);
+    }
 }
 
 // Syntax Highlight Function
@@ -120,8 +130,13 @@ export function searchJSON(direction = null) {
     if (!globalJSONData) return;
 
     if (searchTerm.length < 3) {
-        if (isFilteredView) {
-            renderJSON(globalJSONData);
+        // Clear match state
+        matchIndices = [];
+        currentMatchIndex = 0;
+        // Always re-render if a selection is requested (highlightIndex >= 0)
+        // or if view is filtered
+        if (isFilteredView || currentMatchIndex > 0) {
+            renderJSON(globalJSONData, '', -1);
             isFilteredView = false;
         }
         if (matchCount) matchCount.textContent = '';
