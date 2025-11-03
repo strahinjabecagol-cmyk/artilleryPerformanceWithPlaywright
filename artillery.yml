@@ -16,15 +16,15 @@ config:
   statsInterval: 10
   phases:
     - name: Ramp-up for local test
-      duration: 10
+      duration: 2060
       arrivalRate: 1
       rampTo: 3
     - name: Steady state local test
-      duration: 20 # Run for 2 minutes at steady load
+      duration: 120 # Run for 2 minutes at steady load
       arrivalRate: 3
       # This arrival rate (3 per second) keeps concurrency low enough for your PC
     - name: Ramp-down
-      duration: 10
+      duration: 40
       arrivalRate: 3
       rampTo: 0
 
