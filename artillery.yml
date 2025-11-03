@@ -16,7 +16,7 @@ config:
   statsInterval: 10
   phases:
     - name: Ramp-up for local test
-      duration: 2060
+      duration: 60
       arrivalRate: 1
       rampTo: 3
     - name: Steady state local test
