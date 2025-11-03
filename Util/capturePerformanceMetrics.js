@@ -33,7 +33,7 @@ async function capturePerformanceMetrics(page, events, metricPrefix = 'custom') 
         // Emit metrics (histogram + summary)
         for (const [key, value] of Object.entries(perfMetrics)) {
             if (value > 0) {
-                events.emit('histogram', `${metricPrefix}.${key}`, value);
+                events.emit('histogram', `${metricPrefix}.${key.toLowerCase()}`, value);
                 events.emit('summary', `${metricPrefix}.${key.toUpperCase()}`, { mean: value });
             }
         }
