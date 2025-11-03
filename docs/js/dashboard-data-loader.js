@@ -32,8 +32,14 @@ export async function loadData(reportPath = null) {
         // console.log('Summaries:', summaries);
 
         // Extract duration and start time safely
-        const durationMs = data.aggregate?.duration || 0;
         const firstMetricAt = data.aggregate?.firstMetricAt || null;
+        const lastMetricAt = data.aggregate?.lastMetricAt || null;
+        
+        // Calculate duration from timestamps (in milliseconds)
+        const durationMs = (firstMetricAt && lastMetricAt) 
+            ? (lastMetricAt - firstMetricAt) 
+            : (data.aggregate?.duration || 0);
+        
         const durationSec = (durationMs / 1000).toFixed(1);
 
         // Find target URL dynamically
