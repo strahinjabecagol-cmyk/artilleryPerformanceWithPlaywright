@@ -18,14 +18,14 @@ config:
     - name: Ramp-up for local test
       duration: 60
       arrivalRate: 1
-      rampTo: 5
+      rampTo: 10
     - name: Steady state local test
       duration: 120 # Run for 2 minutes at steady load
-      arrivalRate: 5
-      # This arrival rate (5 per second) keeps concurrency low enough for your PC
+      arrivalRate: 10
+      # This arrival rate (10 per second) keeps concurrency low enough for your PC
     - name: Ramp-down
       duration: 40
-      arrivalRate: 5
+      arrivalRate: 10
       rampTo: 0
 
 scenarios:
