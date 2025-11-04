@@ -16,7 +16,7 @@ export function createCombinedMetricsChart(data, periods, fcpKey) {
 
     // Get Response Time data (try multiple keys)
     const responseTimeKey = Object.keys(data.intermediate[0]?.summaries || {}).find(k =>
-        k.includes('http.response_time') || k.includes('response_time')
+        k.includes('http.response_time') || k.includes('response_time') || k.includes('http_latency')
     );
     const responseTimeData = responseTimeKey
         ? data.intermediate.map(i => i.summaries?.[responseTimeKey]?.mean || 0)
