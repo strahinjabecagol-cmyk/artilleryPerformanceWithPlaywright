@@ -9,8 +9,8 @@ export const phaseMarkersPlugin = {
     id: 'phaseMarkers',
     
     afterDatasetsDraw(chart, args, options) {
-        if (!options.phases || options.phases.length <= 1) {
-            return; // No markers needed for single phase
+        if (!options.phases || options.phases.length === 0) {
+            return; // No phases to display
         }
 
         const { ctx, chartArea, scales } = chart;
@@ -26,6 +26,10 @@ export const phaseMarkersPlugin = {
 
         // Draw vertical lines at phase boundaries and labels for all phases
         phases.forEach((phase, index) => {
+            // Use the phase's original index for consistent color matching with chips
+            const phaseIndex = phase.index;
+            const phaseColor = getPhaseColor(phaseIndex);
+            
             // Find the period label index closest to this phase start time
             const phaseStartLabel = new Date(phase.startTime).toLocaleTimeString('en-US', {
                 hour: '2-digit',
@@ -49,20 +53,23 @@ export const phaseMarkersPlugin = {
                 const label = periodLabels[labelIndex];
                 const x = scales.x.getPixelForValue(label);
 
-                // Draw dashed vertical line at boundary (for ALL phases now)
-                ctx.save();
-                ctx.beginPath();
-                ctx.strokeStyle = getPhaseColor(index);
-                ctx.lineWidth = 3;
-                ctx.setLineDash([8, 4]);
-                ctx.globalAlpha = 0.8;
-                ctx.moveTo(x, chartArea.top);
-                ctx.lineTo(x, chartArea.bottom);
-                ctx.stroke();
-                ctx.restore();
+                // Draw dashed vertical line at boundary (skip for first phase, single phase, or non-contiguous)
+                // Only draw lines between consecutive phases
+                if (index > 0 && phases.length > 1) {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.strokeStyle = phaseColor;
+                    ctx.lineWidth = 3;
+                    ctx.setLineDash([8, 4]);
+                    ctx.globalAlpha = 0.8;
+                    ctx.moveTo(x, chartArea.top);
+                    ctx.lineTo(x, chartArea.bottom);
+                    ctx.stroke();
+                    ctx.restore();
+                }
 
-                // Draw phase label for ALL phases
-                ctx.fillStyle = getPhaseColor(index);
+                // Draw phase label for ALL phases (always show labels)
+                ctx.fillStyle = phaseColor;
                 ctx.font = 'bold 11px sans-serif';
                 ctx.textAlign = 'left';
                 
@@ -77,7 +84,7 @@ export const phaseMarkersPlugin = {
                 ctx.fillRect(labelX - 2, labelY - 10, textMetrics.width + 4, 14);
 
                 // Draw text
-                ctx.fillStyle = getPhaseColor(index);
+                ctx.fillStyle = phaseColor;
                 ctx.fillText(labelText, labelX, labelY);
             }
         });

@@ -81,6 +81,26 @@ function destroyAllCharts() {
 }
 
 /**
+ * Get filtered phases based on selected phase IDs
+ * @param {Array} selectedPhaseIds - Array of selected phase IDs
+ * @param {Array} allPhases - Array of all detected phases
+ * @returns {Array} Filtered array of phases (always show labels for selected phases)
+ */
+function getFilteredPhases(selectedPhaseIds, allPhases) {
+    // If "all" is selected, return all phases
+    if (selectedPhaseIds.includes('all')) {
+        return allPhases;
+    }
+    
+    // For any selected phases, return those phases (labels will always show)
+    // The plugin will handle whether to show boundary lines based on phase count
+    return allPhases.filter(phase => {
+        const phaseId = `phase-${phase.index}`;
+        return selectedPhaseIds.includes(phaseId);
+    });
+}
+
+/**
  * Callback when phase filter changes
  * @param {Array} selectedPhaseIds - Array of selected phase IDs
  */
@@ -228,13 +248,16 @@ function renderDashboard(data, selectedPhaseIds) {
             /browser\.page\.FCP\./i.test(k)
         );
 
+        // Get filtered phases for chart markers (only selected phases)
+        const filteredPhases = getFilteredPhases(selectedPhaseIds, detectedPhases);
+
         // Create charts with filtered data and phase information
-        chartInstances.throughput = createThroughputChart(filteredData, periods, detectedPhases);
-        chartInstances.httpRequests = createHTTPRequestsChart(periods, filteredData, detectedPhases);
-        chartInstances.combinedMetrics = createCombinedMetricsChart(filteredData, periods, fcpKey, detectedPhases);
-        chartInstances.fcp = createFCPChart(periods, filteredData, fcpKey, detectedPhases);
-        chartInstances.vusersActivity = createVUsersActivityChart(periods, filteredData, detectedPhases);
-        chartInstances.concurrentUsers = createConcurrentUsersChart(periods, filteredData, detectedPhases);
+        chartInstances.throughput = createThroughputChart(filteredData, periods, filteredPhases);
+        chartInstances.httpRequests = createHTTPRequestsChart(periods, filteredData, filteredPhases);
+        chartInstances.combinedMetrics = createCombinedMetricsChart(filteredData, periods, fcpKey, filteredPhases);
+        chartInstances.fcp = createFCPChart(periods, filteredData, fcpKey, filteredPhases);
+        chartInstances.vusersActivity = createVUsersActivityChart(periods, filteredData, filteredPhases);
+        chartInstances.concurrentUsers = createConcurrentUsersChart(periods, filteredData, filteredPhases);
         chartInstances.percentiles = createPercentilesChart(fcp);
         chartInstances.statusCodes = createStatusCodesChart(counters);
         chartInstances.successFailure = createSuccessFailureChart(counters);
