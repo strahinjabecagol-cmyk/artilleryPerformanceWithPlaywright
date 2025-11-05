@@ -25,6 +25,8 @@ window.showNoDataMessage = showNoDataMessage;
 let fullData = null;
 let detectedPhases = null;
 let currentSelectedPhases = ['all'];
+let originalStartTime = null;
+let originalTestName = null;
 
 // Chart instances storage
 let chartInstances = {};
@@ -43,6 +45,20 @@ export async function loadData(reportPath = null) {
 
         // Store full data globally
         fullData = data;
+
+        // Store original metadata before any filtering
+        originalStartTime = data.aggregate?.firstMetricAt || null;
+        
+        // Extract original test name
+        const counters = data.aggregate?.counters || {};
+        const counterKeys = Object.keys(counters);
+        const testNameKey = counterKeys.find(k => k.startsWith('TEST_NAME.'));
+        if (testNameKey) {
+            const rawName = testNameKey.replace('TEST_NAME.', '');
+            originalTestName = rawName.replace(/_/g, ' ');
+        } else {
+            originalTestName = 'Artillery Load Test';
+        }
 
         // Detect phases dynamically
         detectedPhases = await detectPhases(data);
@@ -101,6 +117,28 @@ function getFilteredPhases(selectedPhaseIds, allPhases) {
 }
 
 /**
+ * Calculate test duration from phase configurations (not timestamps)
+ * @param {Array} selectedPhaseIds - Array of selected phase IDs
+ * @param {Array} allPhases - Array of all detected phases
+ * @returns {number} Duration in seconds
+ */
+function calculateTestDuration(selectedPhaseIds, allPhases) {
+    // If "all" is selected, sum all phase durations
+    if (selectedPhaseIds.includes('all')) {
+        return allPhases.reduce((sum, phase) => sum + phase.durationSec, 0);
+    }
+    
+    // Sum only selected phase durations
+    return selectedPhaseIds
+        .map(phaseId => {
+            const index = parseInt(phaseId.replace('phase-', ''));
+            return allPhases.find(p => p.index === index);
+        })
+        .filter(phase => phase !== undefined)
+        .reduce((sum, phase) => sum + phase.durationSec, 0);
+}
+
+/**
  * Callback when phase filter changes
  * @param {Array} selectedPhaseIds - Array of selected phase IDs
  */
@@ -155,16 +193,8 @@ function renderDashboard(data, selectedPhaseIds) {
         // console.log('Counters:', counters);
         // console.log('Summaries:', summaries);
 
-        // Extract duration and start time safely
-        const firstMetricAt = filteredAggregate?.firstMetricAt || null;
-        const lastMetricAt = filteredAggregate?.lastMetricAt || null;
-        
-        // Calculate duration from timestamps (in milliseconds)
-        const durationMs = (firstMetricAt && lastMetricAt) 
-            ? (lastMetricAt - firstMetricAt) 
-            : (filteredAggregate?.duration || 0);
-        
-        const durationSec = (durationMs / 1000).toFixed(1);
+        // Calculate duration from phase configurations (not timestamps)
+        const durationSec = calculateTestDuration(selectedPhaseIds, detectedPhases);
 
         // Find target URL dynamically
         const summaryKeys = Object.keys(summaries);
@@ -177,20 +207,12 @@ function renderDashboard(data, selectedPhaseIds) {
             }
         }
 
-        // Extract test name
-        const counterKeys = Object.keys(counters || {});
-        const testNameKey = counterKeys.find(k => k.startsWith('TEST_NAME.'));
-        let finalTestName = 'Artillery Load Test';
-        if (testNameKey) {
-            const rawName = testNameKey.replace('TEST_NAME.', '');
-            finalTestName = rawName.replace(/_/g, ' ');
-        }
-
-        document.getElementById('testName').textContent = finalTestName;
+        // Use stored original metadata (don't recalculate from filtered data)
+        document.getElementById('testName').textContent = originalTestName || 'Artillery Load Test';
         document.getElementById('targetUrl').textContent = targetUrl;
-        document.getElementById('testDuration').textContent = `${durationSec}s`;
-        document.getElementById('startTime').textContent = firstMetricAt
-            ? new Date(firstMetricAt).toLocaleString()
+        document.getElementById('testDuration').textContent = `${durationSec.toFixed(1)}s`;
+        document.getElementById('startTime').textContent = originalStartTime
+            ? new Date(originalStartTime).toLocaleString()
             : 'N/A';
         document.getElementById('scenarioCount').textContent =
             Object.keys(counters).filter(k => k.includes('vusers.created_by_name')).length || 1;
