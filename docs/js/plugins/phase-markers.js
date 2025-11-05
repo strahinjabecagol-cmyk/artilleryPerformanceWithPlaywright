@@ -24,10 +24,8 @@ export const phaseMarkersPlugin = {
 
         ctx.save();
 
-        // Draw vertical line at each phase boundary (except first)
+        // Draw vertical lines at phase boundaries and labels for all phases
         phases.forEach((phase, index) => {
-            if (index === 0) return; // Skip first phase start
-
             // Find the period label index closest to this phase start time
             const phaseStartLabel = new Date(phase.startTime).toLocaleTimeString('en-US', {
                 hour: '2-digit',
@@ -51,16 +49,19 @@ export const phaseMarkersPlugin = {
                 const label = periodLabels[labelIndex];
                 const x = scales.x.getPixelForValue(label);
 
-                // Draw dashed vertical line
+                // Draw dashed vertical line at boundary (for ALL phases now)
+                ctx.save();
                 ctx.beginPath();
                 ctx.strokeStyle = getPhaseColor(index);
-                ctx.lineWidth = 2;
-                ctx.setLineDash([5, 5]);
+                ctx.lineWidth = 3;
+                ctx.setLineDash([8, 4]);
+                ctx.globalAlpha = 0.8;
                 ctx.moveTo(x, chartArea.top);
                 ctx.lineTo(x, chartArea.bottom);
                 ctx.stroke();
+                ctx.restore();
 
-                // Draw phase label at top
+                // Draw phase label for ALL phases
                 ctx.fillStyle = getPhaseColor(index);
                 ctx.font = 'bold 11px sans-serif';
                 ctx.textAlign = 'left';
