@@ -1,6 +1,7 @@
 // Throughput Chart Module
+import { getPhaseMarkersOptions } from '../plugins/phase-markers.js';
 
-export function createThroughputChart(data, periods) {
+export function createThroughputChart(data, periods, phases = null) {
     // Calculate RPS data
     const rpsData = calculateRPSData(data);
     
@@ -48,6 +49,7 @@ export function createThroughputChart(data, periods) {
                     display: true,
                     labels: { color: '#94a3b8', font: { size: 11 } }
                 },
+                phaseMarkers: phases ? getPhaseMarkersOptions(phases, periods) : { phases: [] },
                 tooltip: {
                     callbacks: {
                         label: function (context) {

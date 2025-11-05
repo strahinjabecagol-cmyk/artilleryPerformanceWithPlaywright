@@ -12,6 +12,25 @@ import { createLatencyHistogramChart } from './charts/latency-histogram.js';
 import { createErrorBreakdownChart } from './charts/error-breakdown.js';
 import { createStepBreakdownChart } from './charts/step-breakdown.js';
 import { createApdexCard } from './utils/apdex-calculator.js';
+import { detectPhases, validatePhases } from './utils/phase-detector.js';
+import { filterDataByPhases, recalculateAggregates, enrichDataWithPhases, getFilteredPeriodLabels } from './utils/phase-filter.js';
+import { renderPhaseFilter, updatePhaseFilterVisibility } from './ui/phase-selector.js';
+import { registerPhaseMarkersPlugin } from './plugins/phase-markers.js';
+import { showNoDataMessage } from './utils/event-handlers.js';
+
+// Expose showNoDataMessage globally for compatibility
+window.showNoDataMessage = showNoDataMessage;
+
+// Global state
+let fullData = null;
+let detectedPhases = null;
+let currentSelectedPhases = ['all'];
+
+// Chart instances storage
+let chartInstances = {};
+
+// Register phase markers plugin
+registerPhaseMarkersPlugin();
 
 export async function loadData(reportPath = null) {
     try {
@@ -22,23 +41,108 @@ export async function loadData(reportPath = null) {
             return;
         }
 
+        // Store full data globally
+        fullData = data;
+
+        // Detect phases dynamically
+        detectedPhases = await detectPhases(data);
+        validatePhases(detectedPhases);
+
+        // Enrich data with phase information
+        fullData = enrichDataWithPhases(fullData, detectedPhases);
+
+        // Render phase filter UI
+        renderPhaseFilter(detectedPhases, onPhaseFilterChange);
+        updatePhaseFilterVisibility(detectedPhases.length);
+
+        // Initial render with all phases
+        renderDashboard(fullData, ['all']);
+
+    } catch (error) {
+        console.error('Error loading dashboard data:', error);
+        window.showNoDataMessage();
+    }
+}
+
+/**
+ * Destroy all existing chart instances
+ */
+function destroyAllCharts() {
+    Object.keys(chartInstances).forEach(key => {
+        if (chartInstances[key]) {
+            try {
+                chartInstances[key].destroy();
+            } catch (e) {
+                console.warn(`Failed to destroy chart ${key}:`, e);
+            }
+        }
+    });
+    chartInstances = {};
+}
+
+/**
+ * Callback when phase filter changes
+ * @param {Array} selectedPhaseIds - Array of selected phase IDs
+ */
+function onPhaseFilterChange(selectedPhaseIds) {
+    currentSelectedPhases = selectedPhaseIds;
+    
+    if (!fullData || !detectedPhases) {
+        console.warn('⚠️ Data not loaded yet');
+        return;
+    }
+
+    // Re-render dashboard with filtered data
+    renderDashboard(fullData, selectedPhaseIds);
+}
+
+/**
+ * Render dashboard with filtered data
+ * @param {Object} data - Full data object
+ * @param {Array} selectedPhaseIds - Selected phase IDs
+ */
+function renderDashboard(data, selectedPhaseIds) {
+    try {
+        // Destroy existing charts before creating new ones
+        destroyAllCharts();
+        
+        // Filter intermediate data
+        const filteredIntermediate = filterDataByPhases(data, selectedPhaseIds, detectedPhases);
+        
+        if (filteredIntermediate.length === 0) {
+            console.warn('⚠️ No data for selected phases');
+            return;
+        }
+
+        // Recalculate aggregates for filtered data
+        const filteredAggregate = selectedPhaseIds.includes('all') 
+            ? data.aggregate 
+            : recalculateAggregates(filteredIntermediate);
+
+        // Create a filtered data object
+        const filteredData = {
+            ...data,
+            intermediate: filteredIntermediate,
+            aggregate: filteredAggregate
+        };
+
         const lastUpdated = new Date();
         document.getElementById('lastUpdated').textContent = `Data loaded: ${lastUpdated.toLocaleTimeString()}`;
 
-        const counters = data.aggregate?.counters || {};
-        const summaries = data.aggregate?.summaries || {};
+        const counters = filteredAggregate?.counters || {};
+        const summaries = filteredAggregate?.summaries || {};
 
         // console.log('Counters:', counters);
         // console.log('Summaries:', summaries);
 
         // Extract duration and start time safely
-        const firstMetricAt = data.aggregate?.firstMetricAt || null;
-        const lastMetricAt = data.aggregate?.lastMetricAt || null;
+        const firstMetricAt = filteredAggregate?.firstMetricAt || null;
+        const lastMetricAt = filteredAggregate?.lastMetricAt || null;
         
         // Calculate duration from timestamps (in milliseconds)
         const durationMs = (firstMetricAt && lastMetricAt) 
             ? (lastMetricAt - firstMetricAt) 
-            : (data.aggregate?.duration || 0);
+            : (filteredAggregate?.duration || 0);
         
         const durationSec = (durationMs / 1000).toFixed(1);
 
@@ -70,7 +174,7 @@ export async function loadData(reportPath = null) {
             : 'N/A';
         document.getElementById('scenarioCount').textContent =
             Object.keys(counters).filter(k => k.includes('vusers.created_by_name')).length || 1;
-        document.getElementById('periodCount').textContent = data.intermediate?.length || 0;
+        document.getElementById('periodCount').textContent = filteredIntermediate.length || 0;
 
         // ===================================================================
         // METRIC DETECTION
@@ -118,33 +222,27 @@ export async function loadData(reportPath = null) {
             <div class=\"vital-card ${getRating('FCP', fcp.p75)}\">\n        <h3>First Contentful Paint (FCP)</h3>\n        <div class=\"value\">${fcp.p75?.toFixed(0) || 'N/A'} ms</div>\n        <div class=\"rating\">${getRating('FCP', fcp.p75).replace('-', ' ')}</div>\n      </div>\n      <div class=\"vital-card ${getRating('LCP', lcp.p75)}\">\n        <h3>Largest Contentful Paint (LCP)</h3>\n        <div class=\"value\">${lcp.p75?.toFixed(0) || 'N/A'} ms</div>\n        <div class=\"rating\">${getRating('LCP', lcp.p75).replace('-', ' ')}</div>\n      </div>\n      <div class=\"vital-card ${getRating('FID', fid.p75)}\">\n        <h3>First Input Delay (FID)</h3>\n        <div class=\"value\">${fid.p75?.toFixed(1) || 'N/A'} ms</div>\n        <div class=\"rating\">${getRating('FID', fid.p75).replace('-', ' ')}</div>\n      </div>\n      <div class=\"vital-card ${getRating('CLS', cls.p75)}\">\n        <h3>Cumulative Layout Shift (CLS)</h3>\n        <div class=\"value\">${cls.p75?.toFixed(3) || 'N/A'}</div>\n        <div class=\"rating\">${getRating('CLS', cls.p75).replace('-', ' ')}</div>\n      </div>\n    `;
 
         // Convert intermediate periods to timestamps
-        const periods = data.intermediate.map(item => {
-            const timestamp = item.period ? new Date(parseInt(item.period)) : null;
-            return timestamp
-                ? timestamp.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-                : 'N/A';
-        });
+        const periods = getFilteredPeriodLabels(filteredIntermediate);
 
-        const fcpKey = Object.keys(data.intermediate[0]?.summaries || {}).find(k =>
+        const fcpKey = Object.keys(filteredIntermediate[0]?.summaries || {}).find(k =>
             /browser\.page\.FCP\./i.test(k)
         );
 
-        // Create charts
-        createThroughputChart(data, periods);
-        createHTTPRequestsChart(periods, data);
-        createCombinedMetricsChart(data, periods, fcpKey);
-        createFCPChart(periods, data, fcpKey);
-        createVUsersActivityChart(periods, data);
-        createConcurrentUsersChart(periods, data);
-        createPercentilesChart(fcp);
-        createStatusCodesChart(counters);
-        createSuccessFailureChart(counters);
-        createLatencyHistogramChart(data);
-        createErrorBreakdownChart(counters);
-        createStepBreakdownChart(summaries);
+        // Create charts with filtered data and phase information
+        chartInstances.throughput = createThroughputChart(filteredData, periods, detectedPhases);
+        chartInstances.httpRequests = createHTTPRequestsChart(periods, filteredData, detectedPhases);
+        chartInstances.combinedMetrics = createCombinedMetricsChart(filteredData, periods, fcpKey, detectedPhases);
+        chartInstances.fcp = createFCPChart(periods, filteredData, fcpKey, detectedPhases);
+        chartInstances.vusersActivity = createVUsersActivityChart(periods, filteredData, detectedPhases);
+        chartInstances.concurrentUsers = createConcurrentUsersChart(periods, filteredData, detectedPhases);
+        chartInstances.percentiles = createPercentilesChart(fcp);
+        chartInstances.statusCodes = createStatusCodesChart(counters);
+        chartInstances.successFailure = createSuccessFailureChart(counters);
+        chartInstances.latencyHistogram = createLatencyHistogramChart(filteredData);
+        chartInstances.errorBreakdown = createErrorBreakdownChart(counters);
+        chartInstances.stepBreakdown = createStepBreakdownChart(summaries);
     } catch (error) {
-        console.error('Error loading dashboard data:', error);
-        window.showNoDataMessage();
+        console.error('Error rendering dashboard:', error);
     }
 }
 // dashboard-data-loader.js

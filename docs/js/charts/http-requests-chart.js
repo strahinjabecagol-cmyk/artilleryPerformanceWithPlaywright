@@ -1,6 +1,7 @@
 // HTTP Requests Chart Module
+import { getPhaseMarkersOptions } from '../plugins/phase-markers.js';
 
-export function createHTTPRequestsChart(periods, data) {
+export function createHTTPRequestsChart(periods, data, phases = null) {
     const httpRequestsData = data.intermediate.map(i => i.counters?.['browser.http_requests'] || 0);
 
     return new Chart(document.getElementById('httpRequestsChart'), {
@@ -33,7 +34,8 @@ export function createHTTPRequestsChart(periods, data) {
                 legend: {
                     display: true,
                     labels: { color: '#94a3b8', font: { size: 11 } }
-                }
+                },
+                phaseMarkers: phases ? getPhaseMarkersOptions(phases, periods) : { phases: [] }
             },
             scales: {
                 y: {

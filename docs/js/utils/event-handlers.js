@@ -46,3 +46,19 @@ export function initializeEventListeners() {
         }
     });
 }
+
+/**
+ * Show no data message (placeholder for future implementation)
+ */
+export function showNoDataMessage() {
+    console.error('❌ No data available or failed to load');
+    // Could add UI notification here in the future
+    const container = document.querySelector('.container');
+    if (container) {
+        const message = document.createElement('div');
+        message.className = 'no-data-message';
+        message.style.cssText = 'padding: 2rem; text-align: center; color: #f87171; background: #1e293b; border-radius: 8px; margin: 2rem 0;';
+        message.innerHTML = '<h2>⚠️ Unable to Load Dashboard Data</h2><p>Please check that results.json exists and contains valid data.</p>';
+        container.prepend(message);
+    }
+}

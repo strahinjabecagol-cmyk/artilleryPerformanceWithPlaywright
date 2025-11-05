@@ -1,6 +1,7 @@
 // First Contentful Paint Chart Module
+import { getPhaseMarkersOptions } from '../plugins/phase-markers.js';
 
-export function createFCPChart(periods, data, fcpKey) {
+export function createFCPChart(periods, data, fcpKey, phases = null) {
     // Get FCP data based on intermediate data availability
     const hasFCPInIntermediate = data.intermediate.some(i => i.summaries?.[fcpKey]?.mean);
     const fcpData = hasFCPInIntermediate
@@ -42,6 +43,7 @@ export function createFCPChart(periods, data, fcpKey) {
                     display: true,
                     labels: { color: '#94a3b8', font: { size: 11 } }
                 },
+                phaseMarkers: phases ? getPhaseMarkersOptions(phases, periods) : { phases: [] },
                 zoom: {
                     zoom: {
                         wheel: {
