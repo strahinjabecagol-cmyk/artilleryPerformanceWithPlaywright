@@ -16,6 +16,7 @@ import { detectPhases, validatePhases } from './utils/phase-detector.js';
 import { filterDataByPhases, recalculateAggregates, enrichDataWithPhases, getFilteredPeriodLabels } from './utils/phase-filter.js';
 import { renderPhaseFilter, updatePhaseFilterVisibility } from './ui/phase-selector.js';
 import { initStickyPhaseFilter } from './ui/sticky-phase-filter.js';
+import { initChartMaximize, refreshMaximizeButtons } from './ui/chart-maximize.js';
 import { registerPhaseMarkersPlugin } from './plugins/phase-markers.js';
 import { showNoDataMessage } from './utils/event-handlers.js';
 
@@ -77,6 +78,11 @@ export async function loadData(reportPath = null) {
 
         // Initial render with all phases
         renderDashboard(fullData, ['all']);
+
+        // Initialize chart maximize feature
+        setTimeout(() => {
+            initChartMaximize();
+        }, 200);
 
     } catch (error) {
         console.error('Error loading dashboard data:', error);
@@ -301,6 +307,11 @@ function renderDashboard(data, selectedPhaseIds) {
         chartInstances.latencyHistogram = createLatencyHistogramChart(filteredData);
         chartInstances.errorBreakdown = createErrorBreakdownChart(counters);
         chartInstances.stepBreakdown = createStepBreakdownChart(summaries);
+
+        // Initialize chart maximize buttons after all charts are rendered
+        setTimeout(() => {
+            refreshMaximizeButtons();
+        }, 100);
     } catch (error) {
         console.error('Error rendering dashboard:', error);
     }
