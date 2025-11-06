@@ -29,11 +29,12 @@ export function createConcurrentUsersChart(periods, data, phases = null) {
                     backgroundColor: 'rgba(6, 182, 212, 0)',
                     fill: false,
                     tension: 0.4,
-                    borderWidth: 2,
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
+                    borderWidth: 1.5,
+                    pointRadius: 2.5,
+                    pointHoverRadius: 5,
                     pointBackgroundColor: '#06b6d4',
-                    pointBorderColor: '#06b6d4'
+                    pointBorderColor: '#06b6d4',
+                    pointBorderWidth: 0
                 }
             ]
         },

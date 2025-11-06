@@ -41,9 +41,12 @@ export function createCombinedMetricsChart(data, periods, fcpKey, phases = null)
                     backgroundColor: 'rgba(139, 92, 246, 0.1)',
                     fill: false,
                     tension: 0.4,
-                    borderWidth: 2,
-                    pointRadius: 3,
+                    borderWidth: 1.5,
+                    pointRadius: 2.5,
                     pointHoverRadius: 5,
+                    pointBackgroundColor: '#8b5cf6',
+                    pointBorderColor: '#8b5cf6',
+                    pointBorderWidth: 0,
                     yAxisID: 'y'
                 },
                 {
@@ -53,9 +56,12 @@ export function createCombinedMetricsChart(data, periods, fcpKey, phases = null)
                     backgroundColor: 'rgba(245, 158, 11, 0.1)',
                     fill: false,
                     tension: 0.4,
-                    borderWidth: 2,
-                    pointRadius: 3,
+                    borderWidth: 1.5,
+                    pointRadius: 2.5,
                     pointHoverRadius: 5,
+                    pointBackgroundColor: '#f59e0b',
+                    pointBorderColor: '#f59e0b',
+                    pointBorderWidth: 0,
                     yAxisID: 'y1'
                 },
                 {
@@ -65,9 +71,12 @@ export function createCombinedMetricsChart(data, periods, fcpKey, phases = null)
                     backgroundColor: 'rgba(6, 182, 212, 0.1)',
                     fill: false,
                     tension: 0.4,
-                    borderWidth: 2,
-                    pointRadius: 3,
+                    borderWidth: 1.5,
+                    pointRadius: 2.5,
                     pointHoverRadius: 5,
+                    pointBackgroundColor: '#06b6d4',
+                    pointBorderColor: '#06b6d4',
+                    pointBorderWidth: 0,
                     yAxisID: 'y1'
                 }
             ]

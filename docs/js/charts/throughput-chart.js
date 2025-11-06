@@ -24,11 +24,12 @@ export function createThroughputChart(data, periods, phases = null) {
                     backgroundColor: 'rgba(59, 130, 246, 0.1)',
                     fill: true,
                     tension: 0.4,
-                    borderWidth: 2,
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
+                    borderWidth: 1.5,
+                    pointRadius: 2.5,
+                    pointHoverRadius: 5,
                     pointBackgroundColor: rpsColors,
-                    pointBorderColor: rpsColors
+                    pointBorderColor: rpsColors,
+                    pointBorderWidth: 0
                 }
             ]
         },

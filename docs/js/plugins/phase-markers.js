@@ -59,9 +59,9 @@ export const phaseMarkersPlugin = {
                     ctx.save();
                     ctx.beginPath();
                     ctx.strokeStyle = phaseColor;
-                    ctx.lineWidth = 3;
-                    ctx.setLineDash([8, 4]);
-                    ctx.globalAlpha = 0.8;
+                    ctx.lineWidth = 1.5;
+                    ctx.setLineDash([6, 3]);
+                    ctx.globalAlpha = 0.7;
                     ctx.moveTo(x, chartArea.top);
                     ctx.lineTo(x, chartArea.bottom);
                     ctx.stroke();

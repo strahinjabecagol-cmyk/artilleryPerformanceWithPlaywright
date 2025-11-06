@@ -20,9 +20,12 @@ export function createFCPChart(periods, data, fcpKey, phases = null) {
                     backgroundColor: 'rgba(59, 130, 246, 0.1)',
                     fill: true,
                     tension: 0.4,
-                    borderWidth: 2,
-                    pointRadius: 3,
-                    pointHoverRadius: 5
+                    borderWidth: 1.5,
+                    pointRadius: 2.5,
+                    pointHoverRadius: 5,
+                    pointBackgroundColor: '#3b82f6',
+                    pointBorderColor: '#3b82f6',
+                    pointBorderWidth: 0
                 }
             ]
         },
