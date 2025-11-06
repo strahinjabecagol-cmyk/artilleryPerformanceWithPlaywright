@@ -2,6 +2,50 @@
 import { mapPeriodToPhase } from './phase-detector.js';
 
 /**
+ * Calculate intelligent VUser metrics that respect overall test results
+ * @param {Object} phaseCounters - Raw summed counters from filtered periods
+ * @param {Object} overallCounters - Counters from original full test aggregate
+ * @returns {Object} Adjusted counters with correct VUser attribution
+ */
+function calculateIntelligentVUserMetrics(phaseCounters, overallCounters) {
+    const phaseCreated = phaseCounters['vusers.created'] || 0;
+    const phaseCompleted = phaseCounters['vusers.completed'] || 0;
+    const phaseFailed = phaseCounters['vusers.failed'] || 0;
+    
+    const overallCreated = overallCounters['vusers.created'] || 0;
+    const overallCompleted = overallCounters['vusers.completed'] || 0;
+    const overallFailed = overallCounters['vusers.failed'] || 0;
+    
+    // Calculate overall success rate
+    const overallSuccessRate = overallCreated > 0 
+        ? (overallCompleted / overallCreated) 
+        : 1.0;
+    
+    // SCENARIO 1: Overall test is 100% success (no failures)
+    if (overallFailed === 0 && overallSuccessRate >= 0.999) {
+        console.log(`✅ Phase filtering: Overall test is 100% success. Applying to filtered phases.`);
+        
+        return {
+            ...phaseCounters,
+            'vusers.completed': phaseCreated,  // All created VUsers completed
+            'vusers.failed': 0
+        };
+    }
+    
+    // SCENARIO 2: There are failures - use proportional distribution
+    console.log(`⚠️ Phase filtering: Overall success rate is ${(overallSuccessRate * 100).toFixed(1)}%. Applying proportionally.`);
+    
+    const adjustedCompleted = Math.round(phaseCreated * overallSuccessRate);
+    const adjustedFailed = phaseCreated - adjustedCompleted;
+    
+    return {
+        ...phaseCounters,
+        'vusers.completed': adjustedCompleted,
+        'vusers.failed': adjustedFailed
+    };
+}
+
+/**
  * Filter intermediate data by selected phase IDs
  * @param {Object} data - Full Artillery results data
  * @param {Array} selectedPhaseIds - Array of selected phase IDs (e.g., ['all'] or ['phase-0', 'phase-2'])
@@ -29,9 +73,10 @@ export function filterDataByPhases(data, selectedPhaseIds, phases) {
 /**
  * Recalculate aggregate metrics from filtered intermediate data
  * @param {Array} filteredIntermediate - Filtered intermediate periods
+ * @param {Object} originalAggregate - Original full test aggregate for intelligent VUser calculation
  * @returns {Object} Recalculated aggregate metrics
  */
-export function recalculateAggregates(filteredIntermediate) {
+export function recalculateAggregates(filteredIntermediate, originalAggregate = null) {
     if (!filteredIntermediate || filteredIntermediate.length === 0) {
         return {
             counters: {},
@@ -56,19 +101,24 @@ export function recalculateAggregates(filteredIntermediate) {
         });
     });
 
-    // CRITICAL FIX: Validate VUser metrics to prevent impossible success rates
-    // Artillery counters are incremental - VUsers created in one phase may complete in another
-    // This causes completed > created when filtering by phases
-    const vusersCreated = aggregate.counters['vusers.created'] || 0;
-    const vusersCompleted = aggregate.counters['vusers.completed'] || 0;
-    const vusersFailed = aggregate.counters['vusers.failed'] || 0;
-    
-    // If completed exceeds created, it means VUsers from other phases completed here
-    // Cap completed at created to prevent >100% success rate display
-    if (vusersCompleted > vusersCreated) {
-        console.warn(`⚠️  Phase filtering: ${vusersCompleted} VUsers completed but only ${vusersCreated} created in selected phases`);
-        console.warn('   This happens when VUsers span multiple phases. Capping completed at created.');
-        aggregate.counters['vusers.completed'] = vusersCreated - vusersFailed;
+    // Apply intelligent VUser calculation if we have original aggregate
+    if (originalAggregate && originalAggregate.counters) {
+        aggregate.counters = calculateIntelligentVUserMetrics(
+            aggregate.counters,
+            originalAggregate.counters
+        );
+    } else {
+        // Fallback: Old validation logic for backwards compatibility
+        const vusersCreated = aggregate.counters['vusers.created'] || 0;
+        const vusersCompleted = aggregate.counters['vusers.completed'] || 0;
+        const vusersFailed = aggregate.counters['vusers.failed'] || 0;
+        
+        // If completed exceeds created, cap it
+        if (vusersCompleted > vusersCreated) {
+            console.warn(`⚠️  Phase filtering: ${vusersCompleted} VUsers completed but only ${vusersCreated} created in selected phases`);
+            console.warn('   This happens when VUsers span multiple phases. Capping completed at created.');
+            aggregate.counters['vusers.completed'] = vusersCreated - vusersFailed;
+        }
     }
 
     // Collect summary values for percentile recalculation

@@ -173,9 +173,10 @@ function renderDashboard(data, selectedPhaseIds) {
         }
 
         // Recalculate aggregates for filtered data
+        // Pass original aggregate for intelligent VUser calculation
         const filteredAggregate = selectedPhaseIds.includes('all') 
             ? data.aggregate 
-            : recalculateAggregates(filteredIntermediate);
+            : recalculateAggregates(filteredIntermediate, data.aggregate);
 
         // Create a filtered data object
         const filteredData = {
