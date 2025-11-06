@@ -169,6 +169,7 @@ export function recalculateAggregates(filteredIntermediate, originalAggregate = 
             aggregate.summaries[key].median = percentile(sorted, 0.5);
             aggregate.summaries[key].p50 = percentile(sorted, 0.5);
             aggregate.summaries[key].p75 = percentile(sorted, 0.75);
+            aggregate.summaries[key].p90 = percentile(sorted, 0.90);  // ← ADDED MISSING p90
             aggregate.summaries[key].p95 = percentile(sorted, 0.95);
             aggregate.summaries[key].p99 = percentile(sorted, 0.99);
             aggregate.summaries[key].p999 = percentile(sorted, 0.999);
