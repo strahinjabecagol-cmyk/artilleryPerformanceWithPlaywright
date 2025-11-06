@@ -172,9 +172,19 @@ function renderDashboard(data, selectedPhaseIds) {
             return;
         }
 
+        // Check if all individual phases are selected (equivalent to "all")
+        const allPhaseIds = detectedPhases.map((phase, index) => `phase-${index}`);
+        const allPhasesSelected = selectedPhaseIds.includes('all') || 
+            (selectedPhaseIds.length === allPhaseIds.length && 
+             allPhaseIds.every(id => selectedPhaseIds.includes(id)));
+
+        if (allPhasesSelected && !selectedPhaseIds.includes('all')) {
+            console.log('✅ All individual phases selected - using original aggregate data for accuracy');
+        }
+
         // Recalculate aggregates for filtered data
-        // Pass original aggregate for intelligent VUser calculation
-        const filteredAggregate = selectedPhaseIds.includes('all') 
+        // If all phases selected (either "all" chip or all individual phases), use original aggregate
+        const filteredAggregate = allPhasesSelected
             ? data.aggregate 
             : recalculateAggregates(filteredIntermediate, data.aggregate);
 

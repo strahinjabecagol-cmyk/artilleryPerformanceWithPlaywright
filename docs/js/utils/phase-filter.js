@@ -131,7 +131,15 @@ export function recalculateAggregates(filteredIntermediate, originalAggregate = 
                     min: Infinity,
                     max: -Infinity,
                     values: [],
-                    count: 0
+                    percentiles: {
+                        p50: [],
+                        p75: [],
+                        p90: [],
+                        p95: [],
+                        p99: []
+                    },
+                    count: 0,
+                    totalCount: 0
                 };
             }
 
@@ -147,6 +155,18 @@ export function recalculateAggregates(filteredIntermediate, originalAggregate = 
                 collector.values.push(summary.mean);
                 collector.count++;
             }
+            
+            // Collect percentile values from each period for proper aggregation
+            if (summary.p50 !== undefined && summary.p50 !== null) collector.percentiles.p50.push(summary.p50);
+            if (summary.p75 !== undefined && summary.p75 !== null) collector.percentiles.p75.push(summary.p75);
+            if (summary.p90 !== undefined && summary.p90 !== null) collector.percentiles.p90.push(summary.p90);
+            if (summary.p95 !== undefined && summary.p95 !== null) collector.percentiles.p95.push(summary.p95);
+            if (summary.p99 !== undefined && summary.p99 !== null) collector.percentiles.p99.push(summary.p99);
+            
+            // Accumulate total count
+            if (summary.count !== undefined && summary.count !== null) {
+                collector.totalCount += summary.count;
+            }
         });
     });
 
@@ -160,16 +180,31 @@ export function recalculateAggregates(filteredIntermediate, originalAggregate = 
             mean: collector.values.length > 0 
                 ? collector.values.reduce((a, b) => a + b, 0) / collector.values.length 
                 : 0,
-            count: collector.count
+            count: collector.totalCount > 0 ? collector.totalCount : collector.count
         };
 
-        // Calculate percentiles from collected values
-        if (collector.values.length > 0) {
+        // Use median of collected percentiles (more accurate than calculating from means)
+        if (collector.percentiles.p50.length > 0) {
+            const sortedP50 = [...collector.percentiles.p50].sort((a, b) => a - b);
+            const sortedP75 = [...collector.percentiles.p75].sort((a, b) => a - b);
+            const sortedP90 = [...collector.percentiles.p90].sort((a, b) => a - b);
+            const sortedP95 = [...collector.percentiles.p95].sort((a, b) => a - b);
+            const sortedP99 = [...collector.percentiles.p99].sort((a, b) => a - b);
+            
+            aggregate.summaries[key].p50 = percentile(sortedP50, 0.5);
+            aggregate.summaries[key].median = aggregate.summaries[key].p50;
+            aggregate.summaries[key].p75 = percentile(sortedP75, 0.5);
+            aggregate.summaries[key].p90 = percentile(sortedP90, 0.5);
+            aggregate.summaries[key].p95 = percentile(sortedP95, 0.5);
+            aggregate.summaries[key].p99 = percentile(sortedP99, 0.5);
+            aggregate.summaries[key].p999 = aggregate.summaries[key].p99; // Approximation
+        } else {
+            // Fallback: Calculate from mean values if percentiles not available
             const sorted = [...collector.values].sort((a, b) => a - b);
             aggregate.summaries[key].median = percentile(sorted, 0.5);
             aggregate.summaries[key].p50 = percentile(sorted, 0.5);
             aggregate.summaries[key].p75 = percentile(sorted, 0.75);
-            aggregate.summaries[key].p90 = percentile(sorted, 0.90);  // ← ADDED MISSING p90
+            aggregate.summaries[key].p90 = percentile(sorted, 0.90);
             aggregate.summaries[key].p95 = percentile(sorted, 0.95);
             aggregate.summaries[key].p99 = percentile(sorted, 0.99);
             aggregate.summaries[key].p999 = percentile(sorted, 0.999);
