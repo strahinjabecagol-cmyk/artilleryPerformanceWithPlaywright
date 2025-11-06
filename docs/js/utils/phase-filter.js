@@ -138,12 +138,14 @@ export function recalculateAggregates(filteredIntermediate, originalAggregate = 
                         p95: [],
                         p99: []
                     },
+                    counts: [], // Store counts for weighted averaging
                     count: 0,
                     totalCount: 0
                 };
             }
 
             const collector = summaryCollector[key];
+            const periodCount = summary.count || 0;
             
             if (summary.min !== undefined && summary.min !== null) {
                 collector.min = Math.min(collector.min, summary.min);
@@ -157,7 +159,11 @@ export function recalculateAggregates(filteredIntermediate, originalAggregate = 
             }
             
             // Collect percentile values from each period for proper aggregation
-            if (summary.p50 !== undefined && summary.p50 !== null) collector.percentiles.p50.push(summary.p50);
+            // Store count for weighting - one count per period for this summary key
+            if (summary.p50 !== undefined && summary.p50 !== null) {
+                collector.percentiles.p50.push(summary.p50);
+                collector.counts.push(periodCount); // Store count for weighting
+            }
             if (summary.p75 !== undefined && summary.p75 !== null) collector.percentiles.p75.push(summary.p75);
             if (summary.p90 !== undefined && summary.p90 !== null) collector.percentiles.p90.push(summary.p90);
             if (summary.p95 !== undefined && summary.p95 !== null) collector.percentiles.p95.push(summary.p95);
@@ -183,20 +189,22 @@ export function recalculateAggregates(filteredIntermediate, originalAggregate = 
             count: collector.totalCount > 0 ? collector.totalCount : collector.count
         };
 
-        // Use median of collected percentiles (more accurate than calculating from means)
-        if (collector.percentiles.p50.length > 0) {
-            const sortedP50 = [...collector.percentiles.p50].sort((a, b) => a - b);
-            const sortedP75 = [...collector.percentiles.p75].sort((a, b) => a - b);
-            const sortedP90 = [...collector.percentiles.p90].sort((a, b) => a - b);
-            const sortedP95 = [...collector.percentiles.p95].sort((a, b) => a - b);
-            const sortedP99 = [...collector.percentiles.p99].sort((a, b) => a - b);
+        // Use weighted average of percentiles based on sample counts (more accurate than median-of-medians)
+        if (collector.percentiles.p50.length > 0 && collector.counts && collector.counts.length > 0) {
+            const totalCount = collector.counts.reduce((sum, count) => sum + count, 0);
             
-            aggregate.summaries[key].p50 = percentile(sortedP50, 0.5);
+            // Calculate weighted average for each percentile
+            const calcWeightedAvg = (values, counts) => {
+                if (totalCount === 0) return 0;
+                return values.reduce((sum, val, idx) => sum + (val * counts[idx]), 0) / totalCount;
+            };
+            
+            aggregate.summaries[key].p50 = calcWeightedAvg(collector.percentiles.p50, collector.counts);
             aggregate.summaries[key].median = aggregate.summaries[key].p50;
-            aggregate.summaries[key].p75 = percentile(sortedP75, 0.5);
-            aggregate.summaries[key].p90 = percentile(sortedP90, 0.5);
-            aggregate.summaries[key].p95 = percentile(sortedP95, 0.5);
-            aggregate.summaries[key].p99 = percentile(sortedP99, 0.5);
+            aggregate.summaries[key].p75 = calcWeightedAvg(collector.percentiles.p75, collector.counts);
+            aggregate.summaries[key].p90 = calcWeightedAvg(collector.percentiles.p90, collector.counts);
+            aggregate.summaries[key].p95 = calcWeightedAvg(collector.percentiles.p95, collector.counts);
+            aggregate.summaries[key].p99 = calcWeightedAvg(collector.percentiles.p99, collector.counts);
             aggregate.summaries[key].p999 = aggregate.summaries[key].p99; // Approximation
         } else {
             // Fallback: Calculate from mean values if percentiles not available
