@@ -587,6 +587,24 @@ h1 {
     animation: slideDown 0.3s ease;
     z-index: 1000;
     border-color: #3b82f6;
+    padding: 0.5rem 1rem;
+}
+
+.phase-filter.sticky .phase-filter-label {
+    font-size: 0.7rem;
+    margin: 0;
+}
+
+.phase-filter.sticky .phase-chip {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.7rem;
+}
+
+.phase-filter.sticky .phase-filter-toggle {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.65rem;
+    top: 0.3rem;
+    right: 0.3rem;
 }
 
 .phase-filter.sticky::before {
