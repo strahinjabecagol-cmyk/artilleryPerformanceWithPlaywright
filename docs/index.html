@@ -57,11 +57,17 @@
 
       <!-- Phase Filter -->
       <div class="phase-filter" id="phaseFilter">
+        <button class="phase-filter-toggle" id="phaseFilterToggle" title="Toggle detachable mode (Alt+D)">
+          <span class="icon">📌</span>
+          <span class="label">Dock</span>
+        </button>
         <label class="phase-filter-label">📊 Filter by Phase:</label>
         <div class="phase-chips" id="phaseChipsContainer">
           <!-- Dynamically populated phase chips -->
         </div>
       </div>
+      <!-- Placeholder to prevent layout shift when filter becomes sticky -->
+      <div class="phase-filter-placeholder" id="phaseFilterPlaceholder"></div>
 
       <!-- Test Metadata -->
       <div class="test-metadata" id="testMetadata">

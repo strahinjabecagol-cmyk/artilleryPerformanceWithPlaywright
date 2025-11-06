@@ -15,6 +15,7 @@ import { createApdexCard } from './utils/apdex-calculator.js';
 import { detectPhases, validatePhases } from './utils/phase-detector.js';
 import { filterDataByPhases, recalculateAggregates, enrichDataWithPhases, getFilteredPeriodLabels } from './utils/phase-filter.js';
 import { renderPhaseFilter, updatePhaseFilterVisibility } from './ui/phase-selector.js';
+import { initStickyPhaseFilter } from './ui/sticky-phase-filter.js';
 import { registerPhaseMarkersPlugin } from './plugins/phase-markers.js';
 import { showNoDataMessage } from './utils/event-handlers.js';
 
@@ -70,6 +71,9 @@ export async function loadData(reportPath = null) {
         // Render phase filter UI
         renderPhaseFilter(detectedPhases, onPhaseFilterChange);
         updatePhaseFilterVisibility(detectedPhases.length);
+
+        // Initialize sticky phase filter behavior
+        initStickyPhaseFilter();
 
         // Initial render with all phases
         renderDashboard(fullData, ['all']);

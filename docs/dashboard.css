@@ -10,6 +10,7 @@ body {
     min-height: 100vh;
     padding: 1.5rem;
     color: #e2e8f0;
+    scroll-behavior: smooth;
 }
 
 .container {
@@ -557,7 +558,7 @@ h1 {
 }
 
 /* ===================================================================
- * PHASE FILTER SECTION
+ * PHASE FILTER SECTION - STICKY AND DETACHABLE
  * =================================================================== */
 .phase-filter {
     background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
@@ -569,6 +570,168 @@ h1 {
     align-items: center;
     gap: 1rem;
     flex-wrap: wrap;
+    position: relative;
+    transition: all 0.3s ease;
+    z-index: 100;
+}
+
+/* Sticky state when scrolling */
+.phase-filter.sticky {
+    position: fixed;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 1600px;
+    width: calc(100% - 3rem);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    animation: slideDown 0.3s ease;
+    z-index: 1000;
+    border-color: #3b82f6;
+}
+
+.phase-filter.sticky::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #3b82f6);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Placeholder to prevent layout shift when filter becomes sticky */
+.phase-filter-placeholder {
+    display: none;
+    height: 0;
+}
+
+.phase-filter-placeholder.active {
+    display: block;
+}
+
+/* Detachable toggle button */
+.phase-filter-toggle {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: rgba(51, 65, 85, 0.8);
+    border: 1px solid #475569;
+    color: #cbd5e1;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    z-index: 10;
+}
+
+.phase-filter-toggle:hover {
+    background: rgba(71, 85, 105, 1);
+    border-color: #64748b;
+}
+
+.phase-filter-toggle .icon {
+    font-size: 0.9rem;
+}
+
+/* Detached (floating) mode */
+.phase-filter.detached {
+    position: fixed;
+    top: 50%;
+    left: 1rem;
+    transform: translateY(-50%);
+    max-width: 300px;
+    width: auto;
+    flex-direction: column;
+    align-items: flex-start;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.8);
+    border: 2px solid #475569;
+    z-index: 2000;
+    animation: slideInLeft 0.3s ease;
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+}
+
+/* Scrollbar for detached mode */
+.phase-filter.detached::-webkit-scrollbar {
+    width: 8px;
+}
+
+.phase-filter.detached::-webkit-scrollbar-track {
+    background: #0f172a;
+    border-radius: 4px;
+}
+
+.phase-filter.detached::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 4px;
+}
+
+.phase-filter.detached::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateY(-50%) translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0);
+    }
+}
+
+.phase-filter.detached .phase-filter-toggle {
+    position: relative;
+    top: 0;
+    right: 0;
+    margin-bottom: 0.5rem;
+    width: 100%;
+    justify-content: center;
+}
+
+.phase-filter.detached .phase-filter-label {
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+.phase-filter.detached .phase-chips {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.5rem;
+}
+
+.phase-filter.detached .phase-chip {
+    width: 100%;
+    justify-content: flex-start;
+    text-align: left;
 }
 
 .phase-filter-label {
@@ -670,6 +833,20 @@ h1 {
     .phase-filter {
         flex-direction: column;
         align-items: flex-start;
+    }
+    
+    .phase-filter.sticky {
+        width: calc(100% - 2rem);
+        padding: 1rem;
+    }
+    
+    .phase-filter.detached {
+        top: 1rem;
+        left: 1rem;
+        right: 1rem;
+        transform: none;
+        max-width: none;
+        width: auto;
     }
     
     .phase-chips {
