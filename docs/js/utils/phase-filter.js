@@ -49,11 +49,27 @@ export function recalculateAggregates(filteredIntermediate) {
     };
 
     // Sum all counters across filtered periods
+    // NOTE: vusers.created and vusers.completed are incremental per period
     filteredIntermediate.forEach(period => {
         Object.entries(period.counters || {}).forEach(([key, value]) => {
             aggregate.counters[key] = (aggregate.counters[key] || 0) + value;
         });
     });
+
+    // CRITICAL FIX: Validate VUser metrics to prevent impossible success rates
+    // Artillery counters are incremental - VUsers created in one phase may complete in another
+    // This causes completed > created when filtering by phases
+    const vusersCreated = aggregate.counters['vusers.created'] || 0;
+    const vusersCompleted = aggregate.counters['vusers.completed'] || 0;
+    const vusersFailed = aggregate.counters['vusers.failed'] || 0;
+    
+    // If completed exceeds created, it means VUsers from other phases completed here
+    // Cap completed at created to prevent >100% success rate display
+    if (vusersCompleted > vusersCreated) {
+        console.warn(`⚠️  Phase filtering: ${vusersCompleted} VUsers completed but only ${vusersCreated} created in selected phases`);
+        console.warn('   This happens when VUsers span multiple phases. Capping completed at created.');
+        aggregate.counters['vusers.completed'] = vusersCreated - vusersFailed;
+    }
 
     // Collect summary values for percentile recalculation
     const summaryCollector = {};
