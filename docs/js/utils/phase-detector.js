@@ -5,14 +5,20 @@ import { BASE_PATH } from './path-config.js';
  * Detects phases from available data sources with fallback strategy
  * Priority: 1) execution.log, 2) heuristic analysis from data, 3) single-phase fallback
  * @param {Object} data - The loaded Artillery results data
+ * @param {string} resultFile - The result file being loaded (e.g., 'results_2025-11-07_14-00-35.json')
  * @returns {Promise<Array>} Array of detected phases with metadata
  */
-export async function detectPhases(data) {
+export async function detectPhases(data, resultFile = null) {
+    // console.log(`[PHASE-DETECTOR] ==========================================`);
+    // console.log(`[PHASE-DETECTOR] detectPhases() called with resultFile: "${resultFile}"`);
+    // console.log(`[PHASE-DETECTOR] ==========================================`);
+    
     try {
         // Strategy 1: Try parsing from execution.log (most accurate)
-        const logPhases = await parsePhaseFromLog();
+        const logPhases = await parsePhaseFromLog(resultFile);
         if (logPhases && logPhases.length > 0) {
-            console.log('✅ Phases detected from execution.log:', logPhases.length);
+            console.log(`✅ Phases detected from execution.log: ${logPhases.length}`);
+            // console.log(`[PHASE-DETECTOR] Phase names:`, logPhases.map(p => p.name));
             return enrichPhasesWithTimestamps(logPhases, data.aggregate.firstMetricAt);
         }
     } catch (error) {
@@ -45,12 +51,44 @@ export async function detectPhases(data) {
 /**
  * Parse phase information from execution.log file
  * Example line: "Phase started: Ramp-up for local test (index: 0, duration: 60s) 14:21:20(+0000)"
+ * @param {string} resultFile - The result file to find the corresponding log for
  * @returns {Promise<Array>} Array of phases parsed from log
  */
-async function parsePhaseFromLog() {
+async function parsePhaseFromLog(resultFile = null) {
     try {
         const timestamp = new Date().getTime();
-        const logResponse = await fetch(`${BASE_PATH}/logs/execution.log?v=${timestamp}`);
+        let logFileName = 'execution.log'; // Default fallback
+        
+        // console.log(`[PHASE-DETECTOR] parsePhaseFromLog called with resultFile: "${resultFile}"`);
+        
+        // If a specific result file is provided, look up its corresponding log file
+        if (resultFile && resultFile !== 'results.json') {
+            try {
+                // console.log(`[PHASE-DETECTOR] 🔍 Looking up log file for result: ${resultFile}`);
+                const logsMapResponse = await fetch(`${BASE_PATH}/logs/logsMap.json?v=${timestamp}`);
+                // console.log(`[PHASE-DETECTOR] 📡 logsMap.json fetch status: ${logsMapResponse.status}`);
+                
+                if (logsMapResponse.ok) {
+                    const logsMap = await logsMapResponse.json();
+                    // console.log(`[PHASE-DETECTOR] 📋 logsMap loaded, files:`, logsMap.files);
+                    const logEntry = logsMap.files.find(entry => entry.resultFile === resultFile);
+                    
+                    if (logEntry) {
+                        logFileName = logEntry.filename;
+                        // console.log(`[PHASE-DETECTOR] ✅ Using log file: ${logFileName} for result: ${resultFile}`);
+                    } else {
+                        console.warn(`⚠️ No log entry found for ${resultFile} in logsMap`);
+                    }
+                } else {
+                    console.warn(`⚠️ logsMap.json fetch failed with status ${logsMapResponse.status}`);
+                }
+            } catch (error) {
+                console.warn('⚠️ Could not load logsMap.json, using default execution.log', error);
+            }
+        }
+        
+        // console.log(`[PHASE-DETECTOR] 📂 Fetching log file: ${logFileName}`);
+        const logResponse = await fetch(`${BASE_PATH}/logs/${logFileName}?v=${timestamp}`);
         
         if (!logResponse.ok) {
             throw new Error(`Log file not found: ${logResponse.status}`);

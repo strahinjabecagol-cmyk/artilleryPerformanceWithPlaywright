@@ -80,7 +80,7 @@ export async function loadData(reportPath = null) {
         }
 
         // Detect phases dynamically
-        detectedPhases = await detectPhases(data);
+        detectedPhases = await detectPhases(data, currentReportFile);
         validatePhases(detectedPhases);
 
         // Enrich data with phase information
