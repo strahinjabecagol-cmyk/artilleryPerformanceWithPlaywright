@@ -1,7 +1,7 @@
 // Combined Performance Metrics Chart Module
-import { getPhaseMarkersOptions } from '../plugins/phase-markers.js';
+import { getPhaseMarkersOptions, phaseMarkersPlugin } from '../plugins/phase-markers.js';
 
-export function createCombinedMetricsChart(data, periods, fcpKey, phases = null) {
+export function createCombinedMetricsChart(data, periods, fcpKey, phases = null, periodTimestamps = []) {
     // Check if intermediate data has FCP metrics
     const hasFCPInIntermediate = data.intermediate.some(i => i.summaries?.[fcpKey]?.mean);
 
@@ -81,6 +81,7 @@ export function createCombinedMetricsChart(data, periods, fcpKey, phases = null)
                 }
             ]
         },
+        plugins: [phaseMarkersPlugin], // Explicitly add the plugin
         options: {
             responsive: true,
             maintainAspectRatio: false,
@@ -102,7 +103,7 @@ export function createCombinedMetricsChart(data, periods, fcpKey, phases = null)
                     display: true,
                     labels: { color: '#94a3b8', font: { size: 11 }, padding: 10 }
                 },
-                phaseMarkers: phases ? getPhaseMarkersOptions(phases, periods) : { phases: [] },
+                phaseMarkers: phases ? getPhaseMarkersOptions(phases, periods, periodTimestamps) : { phases: [] },
                 tooltip: {
                     callbacks: {
                         label: function (context) {

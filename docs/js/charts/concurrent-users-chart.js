@@ -1,7 +1,7 @@
 // Concurrent Users Over Time Chart Module
-import { getPhaseMarkersOptions } from '../plugins/phase-markers.js';
+import { getPhaseMarkersOptions, phaseMarkersPlugin } from '../plugins/phase-markers.js';
 
-export function createConcurrentUsersChart(periods, data, phases = null) {
+export function createConcurrentUsersChart(periods, data, phases = null, periodTimestamps = []) {
     // Calculate concurrent users: Created - (Completed + Failed)
     const concurrencyData = [];
     let totalCreated = 0, totalCompleted = 0, totalFailed = 0;
@@ -38,6 +38,7 @@ export function createConcurrentUsersChart(periods, data, phases = null) {
                 }
             ]
         },
+        plugins: [phaseMarkersPlugin], // Explicitly add the plugin
         options: {
             responsive: true,
             maintainAspectRatio: false,
@@ -55,7 +56,7 @@ export function createConcurrentUsersChart(periods, data, phases = null) {
                     display: true,
                     labels: { color: '#94a3b8', font: { size: 11 } }
                 },
-                phaseMarkers: phases ? getPhaseMarkersOptions(phases, periods) : { phases: [] },
+                phaseMarkers: phases ? getPhaseMarkersOptions(phases, periods, periodTimestamps) : { phases: [] },
                 tooltip: {
                     callbacks: {
                         label: function (context) {

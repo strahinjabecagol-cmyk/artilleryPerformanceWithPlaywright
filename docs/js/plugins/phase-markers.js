@@ -2,6 +2,8 @@
 
 import { getPhaseColor } from '../ui/phase-selector.js';
 
+console.log('📦 Phase markers plugin module loaded');
+
 /**
  * Chart.js plugin to draw phase boundary markers on time-series charts
  */
@@ -21,77 +23,98 @@ export const phaseMarkersPlugin = {
 
         const phases = options.phases;
         const periodLabels = options.periodLabels || [];
+        const periodTimestamps = options.periodTimestamps || [];
+
+        if (periodLabels.length === 0) {
+            return;
+        }
 
         ctx.save();
 
-        // Draw vertical lines at phase boundaries and labels for all phases
+        // Draw phase boundaries and labels
         phases.forEach((phase, index) => {
-            // Use the phase's original index for consistent color matching with chips
-            const phaseIndex = phase.index;
-            const phaseColor = getPhaseColor(phaseIndex);
+            const phaseColor = getPhaseColor(phase.index);
             
-            // Find the period label index closest to this phase start time
-            const phaseStartLabel = new Date(phase.startTime).toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            });
+            // Find the period index closest to phase start
+            let startIndex = 0;
+            if (periodTimestamps.length > 0) {
+                // Find period closest to phase start time
+                startIndex = periodTimestamps.findIndex(ts => ts >= phase.startTime);
+                if (startIndex === -1) startIndex = periodTimestamps.length - 1;
+            } else {
+                // Fallback to simple calculation
+                const firstPhaseStart = phases[0].startTime;
+                const lastPhaseEnd = phases[phases.length - 1].endTime;
+                const totalDuration = lastPhaseEnd - firstPhaseStart;
+                const phaseProgress = (phase.startTime - firstPhaseStart) / totalDuration;
+                startIndex = Math.floor(phaseProgress * (periodLabels.length - 1));
+            }
+            
+            startIndex = Math.max(0, Math.min(startIndex, periodLabels.length - 1));
+            
+            const label = periodLabels[startIndex];
+            const x = scales.x.getPixelForValue(label);
 
-            // Find closest matching label
-            let labelIndex = periodLabels.findIndex(label => label === phaseStartLabel);
-            
-            // If exact match not found, find closest by time
-            if (labelIndex === -1 && periodLabels.length > 0) {
-                // Estimate position based on timestamp
-                const totalDuration = phases[phases.length - 1].endTime - phases[0].startTime;
-                const phaseOffset = phase.startTime - phases[0].startTime;
-                const estimatedIndex = Math.floor((phaseOffset / totalDuration) * periodLabels.length);
-                labelIndex = Math.max(0, Math.min(estimatedIndex, periodLabels.length - 1));
+            // Draw vertical line at phase boundary (skip first phase)
+            if (index > 0) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.strokeStyle = phaseColor;
+                ctx.lineWidth = 2;
+                ctx.setLineDash([8, 4]);
+                ctx.globalAlpha = 0.8;
+                ctx.moveTo(x, chartArea.top);
+                ctx.lineTo(x, chartArea.bottom);
+                ctx.stroke();
+                ctx.restore();
             }
 
-            if (labelIndex >= 0 && labelIndex < periodLabels.length) {
-                const label = periodLabels[labelIndex];
-                const x = scales.x.getPixelForValue(label);
-
-                // Draw dashed vertical line at boundary (skip for first phase, single phase, or non-contiguous)
-                // Only draw lines between consecutive phases
-                if (index > 0 && phases.length > 1) {
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.strokeStyle = phaseColor;
-                    ctx.lineWidth = 1.5;
-                    ctx.setLineDash([6, 3]);
-                    ctx.globalAlpha = 0.7;
-                    ctx.moveTo(x, chartArea.top);
-                    ctx.lineTo(x, chartArea.bottom);
-                    ctx.stroke();
-                    ctx.restore();
-                }
-
-                // Draw phase label for ALL phases (always show labels)
-                ctx.fillStyle = phaseColor;
-                ctx.font = 'bold 11px sans-serif';
-                ctx.textAlign = 'left';
-                
-                // Position label slightly to the right of the line
-                const labelText = phase.name;
-                const labelX = x + 5;
-                const labelY = chartArea.top + 15;
-
-                // Draw background for better readability
-                const textMetrics = ctx.measureText(labelText);
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                ctx.fillRect(labelX - 2, labelY - 10, textMetrics.width + 4, 14);
-
-                // Draw text
-                ctx.fillStyle = phaseColor;
-                ctx.fillText(labelText, labelX, labelY);
+            // Find phase end index
+            let endIndex = startIndex;
+            if (periodTimestamps.length > 0) {
+                endIndex = periodTimestamps.findIndex(ts => ts >= phase.endTime);
+                if (endIndex === -1) endIndex = periodTimestamps.length - 1;
+            } else {
+                const firstPhaseStart = phases[0].startTime;
+                const lastPhaseEnd = phases[phases.length - 1].endTime;
+                const totalDuration = lastPhaseEnd - firstPhaseStart;
+                const phaseEndProgress = (phase.endTime - firstPhaseStart) / totalDuration;
+                endIndex = Math.floor(phaseEndProgress * (periodLabels.length - 1));
             }
+            
+            endIndex = Math.max(0, Math.min(endIndex, periodLabels.length - 1));
+            const endX = scales.x.getPixelForValue(periodLabels[endIndex]);
+            
+            const phaseWidth = endX - x;
+            const labelX = x + Math.max(5, phaseWidth / 2 - 30); // Center label in phase region
+            const labelY = chartArea.top + 15;
+
+            // Draw phase label with background
+            ctx.font = 'bold 11px sans-serif';
+            ctx.textAlign = 'left';
+            
+            const labelText = phase.name;
+            const textMetrics = ctx.measureText(labelText);
+            
+            // Draw semi-transparent background
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+            ctx.fillRect(labelX - 4, labelY - 10, textMetrics.width + 8, 15);
+            
+            // Draw border around label
+            ctx.strokeStyle = phaseColor;
+            ctx.lineWidth = 1;
+            ctx.setLineDash([]);
+            ctx.strokeRect(labelX - 4, labelY - 10, textMetrics.width + 8, 15);
+
+            // Draw text
+            ctx.fillStyle = phaseColor;
+            ctx.fillText(labelText, labelX, labelY);
         });
 
         ctx.restore();
     }
 };
+
 
 /**
  * Register the plugin globally with Chart.js
@@ -109,11 +132,13 @@ export function registerPhaseMarkersPlugin() {
  * Get plugin options for a chart
  * @param {Array} phases - Detected phases
  * @param {Array} periodLabels - Array of period label strings
+ * @param {Array} periodTimestamps - Array of period timestamps (optional)
  * @returns {Object} Plugin options
  */
-export function getPhaseMarkersOptions(phases, periodLabels) {
+export function getPhaseMarkersOptions(phases, periodLabels, periodTimestamps = []) {
     return {
         phases: phases,
-        periodLabels: periodLabels
+        periodLabels: periodLabels,
+        periodTimestamps: periodTimestamps
     };
 }

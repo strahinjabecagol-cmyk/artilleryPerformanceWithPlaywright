@@ -312,6 +312,7 @@ function renderDashboard(data, selectedPhaseIds) {
 
         // Convert intermediate periods to timestamps
         const periods = getFilteredPeriodLabels(filteredIntermediate);
+        const periodTimestamps = filteredIntermediate.map(item => parseInt(item.period) || 0);
 
         const fcpKey = Object.keys(filteredIntermediate[0]?.summaries || {}).find(k =>
             /browser\.page\.FCP\./i.test(k)
@@ -321,12 +322,12 @@ function renderDashboard(data, selectedPhaseIds) {
         const filteredPhases = getFilteredPhases(selectedPhaseIds, detectedPhases);
 
         // Create charts with filtered data and phase information
-        chartInstances.throughput = createThroughputChart(filteredData, periods, filteredPhases);
-        chartInstances.httpRequests = createHTTPRequestsChart(periods, filteredData, filteredPhases);
-        chartInstances.combinedMetrics = createCombinedMetricsChart(filteredData, periods, fcpKey, filteredPhases);
-        chartInstances.fcp = createFCPChart(periods, filteredData, fcpKey, filteredPhases);
-        chartInstances.vusersActivity = createVUsersActivityChart(periods, filteredData, filteredPhases);
-        chartInstances.concurrentUsers = createConcurrentUsersChart(periods, filteredData, filteredPhases);
+        chartInstances.throughput = createThroughputChart(filteredData, periods, filteredPhases, periodTimestamps);
+        chartInstances.httpRequests = createHTTPRequestsChart(periods, filteredData, filteredPhases, periodTimestamps);
+        chartInstances.combinedMetrics = createCombinedMetricsChart(filteredData, periods, fcpKey, filteredPhases, periodTimestamps);
+        chartInstances.fcp = createFCPChart(periods, filteredData, fcpKey, filteredPhases, periodTimestamps);
+        chartInstances.vusersActivity = createVUsersActivityChart(periods, filteredData, filteredPhases, periodTimestamps);
+        chartInstances.concurrentUsers = createConcurrentUsersChart(periods, filteredData, filteredPhases, periodTimestamps);
         chartInstances.percentiles = createPercentilesChart(fcp);
         chartInstances.statusCodes = createStatusCodesChart(counters);
         chartInstances.successFailure = createSuccessFailureChart(counters);

@@ -1,7 +1,7 @@
 // Virtual Users Activity Chart Module
-import { getPhaseMarkersOptions } from '../plugins/phase-markers.js';
+import { getPhaseMarkersOptions, phaseMarkersPlugin } from '../plugins/phase-markers.js';
 
-export function createVUsersActivityChart(periods, data, phases = null) {
+export function createVUsersActivityChart(periods, data, phases = null, periodTimestamps = []) {
     const vusersCompleted = data.intermediate.map(i => i.counters?.['vusers.completed'] || 0);
 
     return new Chart(document.getElementById('rpsChart'), {
@@ -18,6 +18,7 @@ export function createVUsersActivityChart(periods, data, phases = null) {
                 }
             ]
         },
+        plugins: [phaseMarkersPlugin], // Explicitly add the plugin
         options: {
             responsive: true,
             maintainAspectRatio: false,
@@ -35,7 +36,7 @@ export function createVUsersActivityChart(periods, data, phases = null) {
                     display: true,
                     labels: { color: '#94a3b8', font: { size: 11 } }
                 },
-                phaseMarkers: phases ? getPhaseMarkersOptions(phases, periods) : { phases: [] }
+                phaseMarkers: phases ? getPhaseMarkersOptions(phases, periods, periodTimestamps) : { phases: [] }
             },
             scales: {
                 y: {
