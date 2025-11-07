@@ -16,25 +16,25 @@ config:
   statsInterval: 10
   phases:
     - name: Ramp-up1
-      duration: 10
+      duration: 30
       arrivalRate: 1
       rampTo: 5
     - name: Ramp-up2 
-      duration: 10
+      duration: 30
       arrivalRate: 1
       rampTo: 10
     - name: Steady state1 
-      duration: 10 # Run for 40sec at steady load
+      duration: 40 # Run for 40sec at steady load
       arrivalRate: 10
     - name: Steady state2
-      duration: 10 # Run for 40sec at steady load
+      duration: 40 # Run for 40sec at steady load
       arrivalRate: 10  
     - name: Steady state3
-      duration: 10 # Run for 40sec at steady load
-      arrivalRate: 5    
+      duration: 40 # Run for 40sec at steady load
+      arrivalRate: 10    
       # This arrival rate (10 per second) keeps concurrency low enough for your PC
     - name: Ramp-down
-      duration: 10
+      duration: 40
       arrivalRate: 10
       rampTo: 0
 
