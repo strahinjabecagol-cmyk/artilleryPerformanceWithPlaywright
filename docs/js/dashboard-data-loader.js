@@ -29,6 +29,8 @@ let detectedPhases = null;
 let currentSelectedPhases = ['all'];
 let originalStartTime = null;
 let originalTestName = null;
+let availableReports = [];
+let currentReportFile = null;
 
 // Chart instances storage
 let chartInstances = {};
@@ -38,8 +40,23 @@ registerPhaseMarkersPlugin();
 
 export async function loadData(reportPath = null) {
     try {
-        // console.log('Fetching results.json...');
-        const data = await loadDashboardData();
+        // Load the list of available reports from resultsMap.json (only on first load)
+        if (availableReports.length === 0) {
+            await loadAvailableReports();
+        }
+        
+        // Determine which report to load
+        const reportToLoad = reportPath || availableReports[0]?.filename || 'results.json';
+        currentReportFile = reportToLoad;
+        
+        // Update dropdown selection to match the loaded report
+        const dropdown = document.getElementById('reportDropdown');
+        if (dropdown) {
+            dropdown.value = currentReportFile;
+        }
+        
+        // Load the selected report data
+        const data = await loadDashboardData(reportToLoad);
         if (!data) {
             window.showNoDataMessage();
             return;
@@ -88,6 +105,13 @@ export async function loadData(reportPath = null) {
         console.error('Error loading dashboard data:', error);
         window.showNoDataMessage();
     }
+}
+
+/**
+ * Get the currently loaded report filename
+ */
+export function getCurrentReportFile() {
+    return currentReportFile || 'results.json';
 }
 
 /**
@@ -206,7 +230,9 @@ function renderDashboard(data, selectedPhaseIds) {
         };
 
         const lastUpdated = new Date();
-        document.getElementById('lastUpdated').textContent = `Data loaded: ${lastUpdated.toLocaleTimeString()}`;
+        const reportInfo = availableReports.find(r => r.filename === currentReportFile);
+        const reportDate = reportInfo ? new Date(reportInfo.timestamp).toLocaleString() : lastUpdated.toLocaleTimeString();
+        document.getElementById('lastUpdated').textContent = `Data loaded: ${reportDate}`;
 
         const counters = filteredAggregate?.counters || {};
         const summaries = filteredAggregate?.summaries || {};
@@ -348,22 +374,91 @@ export async function loadReport(reportPath) {
  * Loads dashboard data from results.json and returns the parsed data object
  * @returns {Promise<Object|null>} Parsed dashboard data or null if not found/invalid
  */
-export async function loadDashboardData() {
+export async function loadDashboardData(reportFile = 'results.json') {
     try {
-        // console.log('Fetching results.json...');
         const timestamp = new Date().getTime();
-        const resolvedReportPath = 'results.json';
-        const fetchUrl = `${BASE_PATH}/results/${resolvedReportPath}?v=${timestamp}`;
-        // console.log(`Loading report from: ${fetchUrl}`);
+        const fetchUrl = `${BASE_PATH}/results/${reportFile}?v=${timestamp}`;
         const res = await fetch(fetchUrl);
-        // console.log('Fetch response:', res.status, res.statusText);
         if (!res.ok) return null;
         const data = await res.json();
-        // console.log('Data loaded successfully:', data);
         if (!data || !data.aggregate || !data.intermediate || data.intermediate.length === 0) return null;
         return data;
     } catch (error) {
         console.error('Error loading dashboard data:', error);
         return null;
     }
+}
+
+/**
+ * Load available reports from resultsMap.json
+ */
+async function loadAvailableReports() {
+    try {
+        const timestamp = new Date().getTime();
+        const res = await fetch(`${BASE_PATH}/results/resultsMap.json?v=${timestamp}`);
+        if (!res.ok) {
+            console.warn('resultsMap.json not found, falling back to results.json');
+            availableReports = [{ filename: 'results.json', timestamp: new Date().toISOString(), testName: 'Latest Test' }];
+            populateReportSelector();
+            return;
+        }
+        const mapData = await res.json();
+        availableReports = mapData.files || [];
+        
+        // Populate the report selector dropdown ONLY on first load
+        populateReportSelector();
+    } catch (error) {
+        console.error('Error loading results map:', error);
+        availableReports = [{ filename: 'results.json', timestamp: new Date().toISOString(), testName: 'Latest Test' }];
+        populateReportSelector();
+    }
+}
+
+/**
+ * Populate the report selector dropdown with available reports
+ */
+function populateReportSelector() {
+    const dropdown = document.getElementById('reportDropdown');
+    if (!dropdown) return;
+    
+    // Clear existing options
+    dropdown.innerHTML = '';
+    
+    // Remove any existing event listeners by cloning the element
+    const newDropdown = dropdown.cloneNode(false);
+    dropdown.parentNode.replaceChild(newDropdown, dropdown);
+    
+    if (availableReports.length === 0) {
+        const option = document.createElement('option');
+        option.value = 'results.json';
+        option.textContent = 'Latest Test';
+        newDropdown.appendChild(option);
+        return;
+    }
+    
+    // Add options for each available report
+    availableReports.forEach((report, index) => {
+        const option = document.createElement('option');
+        option.value = report.filename;
+        
+        // Format the display text
+        const date = new Date(report.timestamp);
+        const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        
+        option.textContent = `${report.testName || 'Test'} - ${dateStr} ${timeStr} (${report.duration || 'N/A'}, ${report.vusers || 0} VU)`;
+        
+        // Select the currently loaded report
+        if (report.filename === currentReportFile) {
+            option.selected = true;
+        }
+        
+        newDropdown.appendChild(option);
+    });
+    
+    // Add ONE event listener for dropdown changes
+    newDropdown.addEventListener('change', async (e) => {
+        const selectedReport = e.target.value;
+        await loadData(selectedReport);
+    });
 }

@@ -1,0 +1,32 @@
+{
+  "files": [
+    {
+      "filename": "results_2025-11-07_14-00-35.json",
+      "timestamp": "2025-11-07T13:01:55.952Z",
+      "testName": "Webstore and Flight Search Performance Test",
+      "duration": "70.9s",
+      "phases": 8,
+      "vusers": 385,
+      "requests": 5703
+    },
+    {
+      "filename": "results_2025-11-07_13-55-56.json",
+      "timestamp": "2025-11-07T12:57:26.587Z",
+      "testName": "Webstore and Flight Search Performance Test",
+      "duration": "80.6s",
+      "phases": 9,
+      "vusers": 435,
+      "requests": 6090
+    },
+    {
+      "filename": "results_2025-11-07_13-53-06.json",
+      "timestamp": "2025-11-07T12:54:32.255Z",
+      "testName": "Webstore and Flight Search Performance Test",
+      "duration": "74.2s",
+      "phases": 8,
+      "vusers": 435,
+      "requests": 6419
+    }
+  ],
+  "latest": "results_2025-11-07_14-00-35.json"
+}

@@ -46,27 +46,44 @@ jobs:
           echo "===== DEBUG: tests/artillery structure ====="
           ls -R tests/artillery || true
 
-      # Run Artillery load test
+      # Generate timestamp for this test run
+      - name: Generate timestamp
+        id: timestamp
+        run: echo "TIMESTAMP=$(date -u +%Y-%m-%d_%H-%M-%S)" >> $GITHUB_OUTPUT
+
+      # Run Artillery load test with timestamped output
       - name: Run Artillery Load Test
         run: |
           mkdir -p results logs
-          npx artillery run artilleryLoad.yml --output results/results.json 2>&1 | tee logs/execution.log
+          TIMESTAMP="${{ steps.timestamp.outputs.TIMESTAMP }}"
+          npx artillery run artilleryLoad.yml \
+            --output results/results_${TIMESTAMP}.json \
+            2>&1 | tee logs/execution_${TIMESTAMP}.log
+
+      # Update map files
+      - name: Update result maps
+        run: |
+          TIMESTAMP="${{ steps.timestamp.outputs.TIMESTAMP }}"
+          node scripts/update-maps.js results_${TIMESTAMP}.json execution_${TIMESTAMP}.log
 
       # Copy results into /docs for GitHub Pages
       - name: Copy artifacts into docs
         run: |
+          TIMESTAMP="${{ steps.timestamp.outputs.TIMESTAMP }}"
           mkdir -p docs/results docs/logs
-          cp results/results.json docs/results/
-          cp logs/execution.log docs/logs/
+          cp results/results_${TIMESTAMP}.json docs/results/
+          cp logs/execution_${TIMESTAMP}.log docs/logs/
+          cp results/resultsMap.json docs/results/
+          cp logs/logsMap.json docs/logs/
 
       # Upload results and logs as artifact
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: perf-load-run
+          name: perf-load-run-${{ steps.timestamp.outputs.TIMESTAMP }}
           path: |
-            results/results.json
-            logs/execution.log
+            results/results_${{ steps.timestamp.outputs.TIMESTAMP }}.json
+            logs/execution_${{ steps.timestamp.outputs.TIMESTAMP }}.log
 
       # ✅ Commit and push updated docs/results + docs/logs
       - name: Commit and push results

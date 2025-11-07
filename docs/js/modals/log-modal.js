@@ -18,10 +18,31 @@ export async function openLogPreview() {
     try {
         const { BASE_PATH } = await import('../utils/path-config.js');
         const timestamp = new Date().getTime();
-        const res = await fetch(`${BASE_PATH}/logs/execution.log?v=${timestamp}`);
+        
+        // Get the current report file from dashboard loader
+        const { getCurrentReportFile } = await import('../dashboard-data-loader.js');
+        const currentReport = getCurrentReportFile();
+        
+        // Find matching log file from logsMap.json
+        let logFile = 'execution.log'; // default fallback
+        
+        try {
+            const logsMapRes = await fetch(`${BASE_PATH}/logs/logsMap.json?v=${timestamp}`);
+            if (logsMapRes.ok) {
+                const logsMap = await logsMapRes.json();
+                const logEntry = logsMap.files.find(f => f.resultFile === currentReport);
+                if (logEntry) {
+                    logFile = logEntry.filename;
+                }
+            }
+        } catch (e) {
+            console.warn('Could not load logsMap.json, using default execution.log');
+        }
+        
+        const res = await fetch(`${BASE_PATH}/logs/${logFile}?v=${timestamp}`);
 
         if (!res.ok) {
-            content.textContent = '❌ Log file not found. Run a test to generate execution.log';
+            content.textContent = `❌ Log file not found: ${logFile}`;
             fileSize.textContent = 'N/A';
             return;
         }

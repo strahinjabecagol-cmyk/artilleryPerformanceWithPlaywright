@@ -1,0 +1,20 @@
+{
+  "files": [
+    {
+      "filename": "execution_2025-11-07_14-00-35.log",
+      "timestamp": "2025-11-07T13:01:55.952Z",
+      "resultFile": "results_2025-11-07_14-00-35.json"
+    },
+    {
+      "filename": "execution_2025-11-07_13-55-56.log",
+      "timestamp": "2025-11-07T12:57:26.587Z",
+      "resultFile": "results_2025-11-07_13-55-56.json"
+    },
+    {
+      "filename": "execution_2025-11-07_13-53-06.log",
+      "timestamp": "2025-11-07T12:54:32.255Z",
+      "resultFile": "results_2025-11-07_13-53-06.json"
+    }
+  ],
+  "latest": "execution_2025-11-07_14-00-35.log"
+}
