@@ -1,6 +1,15 @@
 {
   "files": [
     {
+      "filename": "results_2025-11-07_14-03-37.json",
+      "timestamp": "2025-11-07T14:09:11.741Z",
+      "testName": "Massive Load Test",
+      "duration": "330.1s",
+      "phases": 34,
+      "vusers": 2460,
+      "requests": 42367
+    },
+    {
       "filename": "results_2025-11-07_14-00-35.json",
       "timestamp": "2025-11-07T13:01:55.952Z",
       "testName": "Webstore and Flight Search Performance Test",
@@ -28,5 +37,5 @@
       "requests": 6419
     }
   ],
-  "latest": "results_2025-11-07_14-00-35.json"
+  "latest": "results_2025-11-07_14-03-37.json"
 }
