@@ -50,14 +50,14 @@ jobs:
       - name: Run Artillery Load Test
         run: |
           mkdir -p results logs
-          npx artillery run artilleryLoad.yml --output results/results-load.json 2>&1 | tee logs/execution-load.log
+          npx artillery run artilleryLoad.yml --output results/results.json 2>&1 | tee logs/execution.log
 
       # Copy results into /docs for GitHub Pages
       - name: Copy artifacts into docs
         run: |
           mkdir -p docs/results docs/logs
-          cp results/results-load.json docs/results/
-          cp logs/execution-load.log docs/logs/
+          cp results/results.json docs/results/
+          cp logs/execution.log docs/logs/
 
       # Upload results and logs as artifact
       - name: Upload artifacts
@@ -65,8 +65,8 @@ jobs:
         with:
           name: perf-load-run
           path: |
-            results/results-load.json
-            logs/execution-load.log
+            results/results.json
+            logs/execution.log
 
       # ✅ Commit and push updated docs/results + docs/logs
       - name: Commit and push results
