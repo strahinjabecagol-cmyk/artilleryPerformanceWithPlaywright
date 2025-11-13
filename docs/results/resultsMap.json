@@ -1,13 +1,13 @@
 {
   "files": [
     {
-      "filename": "results_2025-11-07_14-03-37.json",
-      "timestamp": "2025-11-07T14:09:11.741Z",
-      "testName": "Massive Load Test",
-      "duration": "330.1s",
-      "phases": 34,
-      "vusers": 2460,
-      "requests": 42367
+      "filename": "results_2025-11-10_14-29-27.json",
+      "timestamp": "2025-11-10T13:31:44.886Z",
+      "testName": "Polymer Shop E2E Scenario",
+      "duration": "127.5s",
+      "phases": 14,
+      "vusers": 120,
+      "requests": 10878
     },
     {
       "filename": "results_2025-11-07_14-00-35.json",
@@ -37,5 +37,5 @@
       "requests": 6419
     }
   ],
-  "latest": "results_2025-11-07_14-03-37.json"
+  "latest": "results_2025-11-10_14-29-27.json"
 }

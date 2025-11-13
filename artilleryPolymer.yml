@@ -1,0 +1,39 @@
+config:
+  target: "https://shop.polymer-project.org/"
+  engines:
+    playwright:
+      launchOptions:
+        headless: true
+      contextOptions:
+        timeout: 60000
+  # Combined processor with multiple scenarios
+  processor: "./tests/artillery/polymerShopProcessor.js"
+  # # Enable intermediate reporting for per-period metrics
+  # ensure:
+  #   thresholds: true
+  # Report metrics every 10 seconds
+  statsInterval: 10
+  phases:
+    - name: steady
+      duration: 60 # Run for 60sec at steady load
+      arrivalRate: 2
+    # - name: Steady state1 
+    #   duration: 10 # Run for 40sec at steady load
+    #   arrivalRate: 10
+    #   # This arrival rate (10 per second) keeps concurrency low enough for your PC
+    # - name: Ramp-down
+    #   duration: 10
+    #   arrivalRate: 2
+    #   rampTo: 0
+
+scenarios:
+  # ============================================================================
+  # SCENARIO 1: Original Test (uses helper functions)
+  # ============================================================================
+  - name: testScenario
+    engine: "playwright"
+    flowFunction: "buyVastrimHoodie"
+    custom:
+      testName: "Polymer Shop E2E Scenario"
+    weight: 1 # Equal weight distribution
+

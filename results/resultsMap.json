@@ -1,6 +1,15 @@
 {
   "files": [
     {
+      "filename": "results_2025-11-10_14-29-27.json",
+      "timestamp": "2025-11-10T13:31:44.886Z",
+      "testName": "Polymer Shop E2E Scenario",
+      "duration": "127.5s",
+      "phases": 14,
+      "vusers": 120,
+      "requests": 10878
+    },
+    {
       "filename": "results_2025-11-07_14-00-35.json",
       "timestamp": "2025-11-07T13:01:55.952Z",
       "testName": "Webstore and Flight Search Performance Test",
@@ -28,5 +37,5 @@
       "requests": 6419
     }
   ],
-  "latest": "results_2025-11-07_14-00-35.json"
+  "latest": "results_2025-11-10_14-29-27.json"
 }

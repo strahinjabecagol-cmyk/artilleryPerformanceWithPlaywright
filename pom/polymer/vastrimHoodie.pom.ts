@@ -22,6 +22,8 @@ export class VastrimHoodiePage extends SingleItemBasePage {
         await this.expect(this.pageTitleElement).toBeVisible();
 
     }
+
+    
 }
 
 

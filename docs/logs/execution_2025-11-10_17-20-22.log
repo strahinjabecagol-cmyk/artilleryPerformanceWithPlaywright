@@ -1,0 +1,12 @@
+Test run id: twreb_384p43agcwceqzprdja9rg7nfz6te_87p3
+worker error, id: 1 ReferenceError [Error]: page is not defined
+    at Object.<anonymous> (C:\Users\strahinja.becagol\Desktop\sloadTs\tests\artillery\polymerShopProcessor.js:20:38)
+    at Module._compile (node:internal/modules/cjs/loader:1706:14)
+    at Object..js (node:internal/modules/cjs/loader:1839:10)
+    at Module.load (node:internal/modules/cjs/loader:1441:32)
+    at Function._load (node:internal/modules/cjs/loader:1263:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+    at Module.require (node:internal/modules/cjs/loader:1463:12)
+    at require (node:internal/modules/helpers:147:16)
+    at loadProcessor (C:\Users\strahinja.becagol\AppData\Roaming\npm\node_modules\artillery\node_modules\@artilleryio\int-core\lib\runner.js:96:33)

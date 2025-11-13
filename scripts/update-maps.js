@@ -21,12 +21,17 @@ if (!fs.existsSync(resultsPath)) {
 
 const resultsData = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
 
-// Extract metadata from results
-const testName = resultsData.aggregate?.counters?.['TEST_NAME.Webstore_and_Flight_Search_Performance_Test'] 
-  ? 'Webstore and Flight Search Performance Test'
-  : resultsData.aggregate?.counters?.['TEST_NAME.Masive_Load_Test']
-  ? 'Massive Load Test'
-  : 'Unknown Test';
+// Extract metadata from results - dynamically find test name
+let testName = 'Unknown Test';
+const counters = resultsData.aggregate?.counters || {};
+
+// Find any counter that starts with TEST_NAME.
+const testNameKey = Object.keys(counters).find(key => key.startsWith('TEST_NAME.'));
+if (testNameKey) {
+  // Extract the test name after TEST_NAME. and convert underscores back to spaces
+  const rawName = testNameKey.replace('TEST_NAME.', '');
+  testName = rawName.replace(/_/g, ' ');
+}
 
 const duration = resultsData.aggregate?.lastMetricAt && resultsData.aggregate?.firstMetricAt
   ? ((resultsData.aggregate.lastMetricAt - resultsData.aggregate.firstMetricAt) / 1000).toFixed(1) + 's'

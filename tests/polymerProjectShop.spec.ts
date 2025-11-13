@@ -1,4 +1,5 @@
 import { test } from '../base.test'
+import { CartPage } from '../pom/polymer/cartPage.pom';
 
 test('polymer shop e2e', async ({
     polymerHomePage,
@@ -84,4 +85,26 @@ test('polymer shop e2e', async ({
         await polymerCartPage.checkIfladiesChromeTExist();
 
     });
+});
+
+test.only('Buy Vastrim Hoodie', async ({
+    polymerHomePage,
+    mensOutwarePage,
+    vastrimHoodiePage,
+    polymerCartPage
+}) => {
+
+    await polymerHomePage.goto();
+    await polymerHomePage.clickMensOutwareLink();
+    await mensOutwarePage.clickVastrmHoodie();
+    await vastrimHoodiePage.changeSizeToXL();
+    await vastrimHoodiePage.changeQuantityTo2();
+    await vastrimHoodiePage.addToCart();
+    await vastrimHoodiePage.dismissAddedToCartPopup();
+    await polymerCartPage.goto();
+    await polymerCartPage.clickCheckoutButton();
+    await polymerCartPage.fillinCheckoutForm('John Doe', 'john.doe@example.com','381123654789', '123 Main St', 'Anytown', '12345', 'USA');
+    await polymerCartPage.placeTheOrder();
+
+    
 });
